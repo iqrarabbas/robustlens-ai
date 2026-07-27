@@ -7,101 +7,143 @@ import plotly.graph_objects as go
 import os
 import io
 
-# Page configuration
+# ---------------------------------------------------------
+# PAGE CONFIGURATION & METADATA
+# ---------------------------------------------------------
 st.set_page_config(
-    page_title="RobustLens AI | Adversarial Robustness Analytics",
+    page_title="RobustLens AI | Adversarial Model Benchmarking",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Styling & Glassmorphism Aesthetic
-st.markdown("""
+# ---------------------------------------------------------
+# CUSTOM CSS STYLING & GLASSMORPHISM AESTHETICS
+# ---------------------------------------------------------
+st.markdown(r"""
 <style>
-    /* Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
     }
     
-    h1, h2, h3, h4 {
+    h1, h2, h3, h4, h5, h6 {
         font-family: 'Outfit', sans-serif;
     }
     
-    /* Global Glass Cards */
-    .stCard {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
+    /* Main Background Glow */
+    .stApp {
+        background: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
     }
     
-    /* Header Gradient */
+    /* Header Gradient & Badges */
     .header-title {
-        background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
+        background: linear-gradient(135deg, #38BDF8 0%, #818CF8 50%, #C084FC 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-weight: 700;
-        font-size: 2.5rem;
+        font-weight: 800;
+        font-size: 2.8rem;
+        letter-spacing: -0.02em;
         margin-bottom: 0.2rem;
     }
     
     .sub-title {
-        color: #9CA3AF;
-        font-size: 1.1rem;
+        color: #94A3B8;
+        font-size: 1.15rem;
+        font-weight: 400;
         margin-bottom: 1.5rem;
     }
     
-    /* Metric Card Customization */
-    .metric-container {
-        background: linear-gradient(145deg, #1E293B, #0F172A);
-        border: 1px solid #334155;
-        border-radius: 10px;
-        padding: 15px;
-        text-align: center;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    /* Glass Cards */
+    .glass-card {
+        background: rgba(30, 41, 59, 0.6);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        transition: transform 0.2s ease, border-color 0.2s ease;
     }
     
-    .metric-value {
-        font-size: 1.8rem;
+    .glass-card:hover {
+        border-color: rgba(99, 102, 241, 0.4);
+    }
+    
+    /* Metric Card Customization */
+    .metric-box {
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        padding: 18px 12px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .metric-val {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.1rem;
         font-weight: 700;
         color: #38BDF8;
+        margin: 4px 0;
     }
     
-    .metric-label {
-        font-size: 0.85rem;
+    .metric-lbl {
+        font-size: 0.8rem;
+        font-weight: 600;
         color: #94A3B8;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.08em;
     }
 
-    /* Status Badges */
-    .badge-success {
-        background-color: rgba(16, 185, 129, 0.2);
-        color: #10B981;
-        border: 1px solid #10B981;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
+    .metric-sub {
+        font-size: 0.85rem;
+        color: #CBD5E1;
+        font-weight: 500;
     }
-
-    .badge-warning {
-        background-color: rgba(245, 158, 11, 0.2);
-        color: #F59E0B;
-        border: 1px solid #F59E0B;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 0.8rem;
+    
+    /* Pill Badges */
+    .badge-tag {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
         font-weight: 600;
+        letter-spacing: 0.03em;
+    }
+    
+    .badge-high {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34D399;
+        border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+    
+    .badge-mid {
+        background: rgba(245, 158, 11, 0.15);
+        color: #FBBF24;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+    
+    .badge-low {
+        background: rgba(239, 68, 68, 0.15);
+        color: #F87171;
+        border: 1px solid rgba(248, 113, 113, 0.3);
+    }
+    
+    /* Styled Streamlit Dataframe */
+    [data-testid="stDataFrame"] {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Define System Prompt for Gemini
+# ---------------------------------------------------------
+# SYSTEM PROMPT DEFINITION FOR GEMINI
+# ---------------------------------------------------------
 SYSTEM_PROMPT = """You are an AI research assistant specialising in adversarial robustness
 and Vision Transformers.
 
@@ -120,9 +162,10 @@ Your tasks are:
 
 Keep the explanation clear and suitable for a master's student."""
 
-# Session State Initialization
+# ---------------------------------------------------------
+# SESSION STATE INITIALIZATION & DEFAULT BENCHMARKS
+# ---------------------------------------------------------
 if "experiments" not in st.session_state:
-    # Load default sample benchmark dataset
     default_df = pd.DataFrame([
         {
             "Experiment Name": "ViT-B/16 Baseline",
@@ -167,44 +210,60 @@ if "experiments" not in st.session_state:
             "PGD Accuracy (%)": 51.4,
             "Epsilon": "8/255",
             "Epochs": 25
+        },
+        {
+            "Experiment Name": "ResNet-50 PGD-10",
+            "Model Name": "ResNet-50",
+            "Dataset": "CIFAR-10",
+            "Fine-tuning Method": "PGD-10 Adversarial Training",
+            "Clean Accuracy (%)": 82.0,
+            "FGSM Accuracy (%)": 56.3,
+            "PGD Accuracy (%)": 44.7,
+            "Epsilon": "8/255",
+            "Epochs": 20
         }
     ])
     st.session_state.experiments = default_df
 
-# Utility Functions
+# ---------------------------------------------------------
+# CORE CALCULATION ENGINE
+# ---------------------------------------------------------
 def calculate_metrics(df):
     if df.empty:
         return df
     
-    df_calc = df.copy()
-    df_calc["FGSM Accuracy Drop (%)"] = (df_calc["Clean Accuracy (%)"] - df_calc["FGSM Accuracy (%)"]).round(2)
-    df_calc["PGD Accuracy Drop (%)"] = (df_calc["Clean Accuracy (%)"] - df_calc["PGD Accuracy (%)"]).round(2)
+    calc = df.copy()
+    calc["FGSM Drop (%)"] = (calc["Clean Accuracy (%)"] - calc["FGSM Accuracy (%)"]).round(2)
+    calc["PGD Drop (%)"] = (calc["Clean Accuracy (%)"] - calc["PGD Accuracy (%)"]).round(2)
     
-    # Robustness Score calculation:
+    # Robustness Score Formula:
     # 0.20 * Clean + 0.35 * FGSM + 0.45 * PGD
-    df_calc["Robustness Score"] = (
-        0.20 * df_calc["Clean Accuracy (%)"] +
-        0.35 * df_calc["FGSM Accuracy (%)"] +
-        0.45 * df_calc["PGD Accuracy (%)"]
+    calc["Robustness Score"] = (
+        0.20 * calc["Clean Accuracy (%)"] +
+        0.35 * calc["FGSM Accuracy (%)"] +
+        0.45 * calc["PGD Accuracy (%)"]
     ).round(2)
     
-    return df_calc
+    # Efficiency index
+    calc["Epoch Efficiency"] = (calc["Robustness Score"] / calc["Epochs"].astype(float)).round(2)
+    
+    return calc
 
 def get_gemini_key():
-    # 1. Try Streamlit secrets
     try:
         if "GEMINI_API_KEY" in st.secrets:
             return st.secrets["GEMINI_API_KEY"]
     except Exception:
         pass
-    # 2. Try OS environment variable
     return os.environ.get("GEMINI_API_KEY", "")
 
-# Sidebar Navigation
+# ---------------------------------------------------------
+# SIDEBAR NAVIGATION & QUICK CONTROLS
+# ---------------------------------------------------------
 with st.sidebar:
-    st.image("https://img.icons8.com/isometric-line/100/shield-protection.png", width=64)
-    st.markdown("### **RobustLens AI**")
-    st.caption("Adversarial Robustness Evaluation & AI Insights")
+    st.image("https://img.icons8.com/isometric-line/100/shield-protection.png", width=56)
+    st.markdown("## **RobustLens AI**")
+    st.caption("Adversarial Robustness Analytics & AI Research Assistant")
     st.markdown("---")
     
     page = st.radio(
@@ -213,71 +272,30 @@ with st.sidebar:
             "🏠 Home",
             "🧪 Experiment Analyzer",
             "📊 Model Comparison",
+            "📈 Pareto Trade-Off Frontier",
+            "🎛️ Epsilon Simulator",
             "🤖 AI Research Assistant"
         ],
         index=0
     )
     
     st.markdown("---")
-    st.markdown("#### **Active Workspace**")
+    st.markdown("#### **Workspace Manager**")
     exp_count = len(st.session_state.experiments)
     st.info(f"📁 **{exp_count}** Experiment(s) loaded")
     
-    if st.button("🔄 Reset to Default Benchmark", use_container_width=True):
-        st.session_state.experiments = pd.DataFrame([
-            {
-                "Experiment Name": "ViT-B/16 Baseline",
-                "Model Name": "ViT-B/16",
-                "Dataset": "CIFAR-10",
-                "Fine-tuning Method": "Standard Fine-Tuning",
-                "Clean Accuracy (%)": 92.4,
-                "FGSM Accuracy (%)": 24.1,
-                "PGD Accuracy (%)": 2.8,
-                "Epsilon": "8/255",
-                "Epochs": 10
-            },
-            {
-                "Experiment Name": "ViT-B/16 FGSM-AT",
-                "Model Name": "ViT-B/16",
-                "Dataset": "CIFAR-10",
-                "Fine-tuning Method": "FGSM Adversarial Training",
-                "Clean Accuracy (%)": 88.2,
-                "FGSM Accuracy (%)": 65.4,
-                "PGD Accuracy (%)": 18.2,
-                "Epsilon": "8/255",
-                "Epochs": 15
-            },
-            {
-                "Experiment Name": "ViT-B/16 PGD-7 AT",
-                "Model Name": "ViT-B/16",
-                "Dataset": "CIFAR-10",
-                "Fine-tuning Method": "PGD-7 Adversarial Training",
-                "Clean Accuracy (%)": 84.6,
-                "FGSM Accuracy (%)": 61.2,
-                "PGD Accuracy (%)": 48.5,
-                "Epsilon": "8/255",
-                "Epochs": 20
-            },
-            {
-                "Experiment Name": "ViT-B/16 TRADES",
-                "Model Name": "ViT-B/16",
-                "Dataset": "CIFAR-10",
-                "Fine-tuning Method": "TRADES (beta=6.0)",
-                "Clean Accuracy (%)": 83.1,
-                "FGSM Accuracy (%)": 59.8,
-                "PGD Accuracy (%)": 51.4,
-                "Epsilon": "8/255",
-                "Epochs": 25
-            }
-        ])
-        st.rerun()
-
-    if st.button("🗑️ Clear All Experiments", use_container_width=True):
-        st.session_state.experiments = pd.DataFrame(columns=[
-            "Experiment Name", "Model Name", "Dataset", "Fine-tuning Method",
-            "Clean Accuracy (%)", "FGSM Accuracy (%)", "PGD Accuracy (%)", "Epsilon", "Epochs"
-        ])
-        st.rerun()
+    col_s1, col_s2 = st.columns(2)
+    with col_s1:
+        if st.button("🔄 Reset Data", use_container_width=True):
+            st.session_state.experiments = default_df.copy()
+            st.rerun()
+    with col_s2:
+        if st.button("🗑️ Clear All", use_container_width=True):
+            st.session_state.experiments = pd.DataFrame(columns=[
+                "Experiment Name", "Model Name", "Dataset", "Fine-tuning Method",
+                "Clean Accuracy (%)", "FGSM Accuracy (%)", "PGD Accuracy (%)", "Epsilon", "Epochs"
+            ])
+            st.rerun()
 
 # ---------------------------------------------------------
 # PAGE 1: HOME
@@ -286,141 +304,146 @@ if page == "🏠 Home":
     st.markdown('<div class="header-title">RobustLens AI</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Adversarial Robustness Evaluation & Diagnostic Assistant for Vision Transformers & CNNs</div>', unsafe_allow_html=True)
     
-    col1, col2 = st.columns([3, 2])
+    c1, c2 = st.columns([3, 2])
     
-    with col1:
+    with c1:
         st.markdown(r"""
-        ### 📌 **The Challenge**
-        Deep learning models—especially Vision Transformers (ViTs)—achieve state-of-the-art clean accuracy, yet remain highly vulnerable to small, imperceptible adversarial perturbations.
+        <div class="glass-card">
+            <h3>📌 The Core Research Challenge</h3>
+            <p style="color: #CBD5E1; line-height: 1.7;">
+                Deep Neural Networks—especially modern <b>Vision Transformers (ViTs)</b>—achieve remarkable clean classification performance. However, they are fragile under tiny, adversarial perturbations.
+            </p>
+            <p style="color: #CBD5E1; line-height: 1.7;">
+                Evaluating defensive fine-tuning methods like <b>FGSM-AT</b>, <b>PGD-AT</b>, or <b>TRADES</b> introduces complex trade-offs between clean accuracy retention and adversarial defense strength.
+            </p>
+            <h4 style="margin-top: 15px;">💡 How RobustLens AI Helps:</h4>
+            <ul style="color: #CBD5E1; line-height: 1.8;">
+                <li><b>Automated Drop Metrics</b>: Computes $\text{Clean} - \text{FGSM}$ and $\text{Clean} - \text{PGD}$ accuracy degradation instantly.</li>
+                <li><b>Weighted Robustness Score</b>: Combines clean retention and attack defenses ($0.20\cdot\text{Clean} + 0.35\cdot\text{FGSM} + 0.45\cdot\text{PGD}$).</li>
+                <li><b>Interactive Visualizations</b>: Grouped multi-bar charts, Radar charts, and Pareto Frontier trade-off analysis.</li>
+                <li><b>Epsilon Attack Simulator</b>: Simulates model accuracy breakdown across increasing attack strengths ($\epsilon$).</li>
+                <li><b>Gemini AI Diagnostics</b>: Custom system instruction evaluates trade-offs and suggests next steps.</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
         
-        When researchers evaluate adversarial training methods like **FGSM (Fast Gradient Sign Method)** or multi-step **PGD (Projected Gradient Descent)**, understanding the trade-offs between clean accuracy retention and adversarial defense strength can be non-trivial.
-        
-        ### 💡 **How RobustLens AI Helps**
-        - **Calculates Drop Metrics**: Instantly computes accuracy degradation under FGSM single-step and PGD iterative attack regimes.
-        - **Computes Weighted Robustness Score**: Evaluates models using a weighted formulation giving higher priority to multi-step attacks ($0.20 \cdot \text{Clean} + 0.35 \cdot \text{FGSM} + 0.45 \cdot \text{PGD}$).
-        - **Generates Comparative Visualizations**: Side-by-side grouped bar charts for rapid model benchmarking.
-        - **AI-Powered Diagnostics**: Leverages Gemini AI to interpret clean vs. robust trade-offs, explain PGD vulnerabilities, and recommend optimal next steps.
-        - **Exportable Reports**: Seamless CSV downloads for inclusion in research papers and technical reports.
-        """)
-    
-    with col2:
+    with c2:
         st.markdown("""
-        ### 🛠️ **Quick Workflow**
-        1. **Input Experiment Data**: Enter metrics via interactive form or upload a CSV in **Experiment Analyzer**.
-        2. **Compare Models**: Analyze clean vs. attack performance, inspect ranking tables & dynamic charts in **Model Comparison**.
-        3. **Get AI Research Insights**: Generate structured paper-ready commentary in **AI Research Assistant**.
-        """)
-        
-        st.info("💡 **Example Dataset Pre-loaded**: Navigate directly to **Model Comparison** or **AI Research Assistant** to inspect standard ViT-B/16 baseline vs. Adversarially Fine-tuned models on CIFAR-10!")
+        <div class="glass-card">
+            <h3>⚡ Quickstart Workflow</h3>
+            <ol style="color: #CBD5E1; line-height: 2.0; padding-left: 20px;">
+                <li><b>Experiment Analyzer</b>: Add custom experiment data or import CSV logs.</li>
+                <li><b>Model Comparison</b>: View performance leaderboards, radar charts, & best-in-class highlights.</li>
+                <li><b>Pareto Frontier</b>: Analyze clean vs. robust accuracy trade-offs.</li>
+                <li><b>Epsilon Simulator</b>: Model performance degradation as attack strength grows.</li>
+                <li><b>AI Assistant</b>: Generate paper-ready commentary with Google Gemini.</li>
+            </ol>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("### 📚 **Adversarial Attack Quick Reference**")
+    st.markdown("### 📚 Adversarial Attack Reference")
     
     col_a, col_b = st.columns(2)
     with col_a:
         st.markdown(r"""
-        #### ⚡ **FGSM (Fast Gradient Sign Method)**
-        - **Type**: Single-step gradient attack.
-        - **Formulation**: $x_{adv} = x + \epsilon \cdot \text{sign}(\nabla_x L(\theta, x, y))$
-        - **Characteristics**: Fast computation, assesses first-order linear gradient alignment vulnerability.
-        """)
+        <div class="glass-card">
+            <h4>⚡ FGSM (Fast Gradient Sign Method)</h4>
+            <p style="color: #94A3B8; font-size: 0.9rem;">Single-step linear gradient perturbation attack.</p>
+            <code style="color:#38BDF8;">x_adv = x + ε · sign(∇_x L(θ, x, y))</code>
+            <p style="color: #CBD5E1; margin-top: 10px; font-size: 0.95rem;">
+                Fast baseline evaluation for first-order gradient alignment vulnerabilities.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
     with col_b:
         st.markdown(r"""
-        #### 🔄 **PGD (Projected Gradient Descent)**
-        - **Type**: Multi-step iterative projected gradient attack.
-        - **Formulation**: $x^{t+1} = \Pi_{x+S} (x^t + \alpha \cdot \text{sign}(\nabla_x L(\theta, x^t, y)))$
-        - **Characteristics**: Considered the standard first-order attack strength benchmark.
-        """)
+        <div class="glass-card">
+            <h4>🔄 PGD (Projected Gradient Descent)</h4>
+            <p style="color: #94A3B8; font-size: 0.9rem;">Multi-step iterative projected gradient attack.</p>
+            <code style="color:#F43F5E;">x^{t+1} = Π_{x+S}(x^t + α · sign(∇_x L(θ, x^t, y)))</code>
+            <p style="color: #CBD5E1; margin-top: 10px; font-size: 0.95rem;">
+                Considered the standard benchmark for non-obfuscated multi-step attack resistance.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # PAGE 2: EXPERIMENT ANALYZER
 # ---------------------------------------------------------
 elif page == "🧪 Experiment Analyzer":
-    st.markdown("## 🧪 Experiment Analyzer & Entry")
-    st.caption("Add single experiment results or batch import CSV research logs.")
+    st.markdown("## 🧪 Experiment Analyzer & Input Logger")
+    st.caption("Log single experiment results or batch import CSV files.")
     
     tab1, tab2 = st.columns(2)
     
     with tab1:
-        st.markdown("### ➕ Manual Experiment Entry")
+        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+        st.markdown("### ➕ Add Single Experiment")
         with st.form("add_experiment_form", clear_on_submit=True):
-            exp_name = st.text_input("Experiment Name", placeholder="e.g. ViT-B/16 TRADES-5")
+            exp_name = st.text_input("Experiment Name", placeholder="e.g. ViT-B/16 TRADES-beta6")
             col_m1, col_m2 = st.columns(2)
             with col_m1:
-                model_name = st.text_input("Model Name", value="ViT-B/16")
+                model_name = st.text_input("Model Architecture", value="ViT-B/16")
                 dataset = st.text_input("Dataset", value="CIFAR-10")
             with col_m2:
-                finetune_method = st.text_input("Fine-tuning Method", value="Adversarial Training")
-                epsilon = st.text_input("Epsilon (Attack Strength)", value="8/255")
+                finetune_method = st.text_input("Fine-tuning Method", value="TRADES Fine-Tuning")
+                epsilon = st.text_input("Attack Epsilon (ε)", value="8/255")
             
             col_a1, col_a2, col_a3 = st.columns(3)
             with col_a1:
-                clean_acc = st.number_input("Clean Accuracy (%)", min_value=0.0, max_value=100.0, value=85.0, step=0.1)
+                clean_acc = st.number_input("Clean Acc (%)", min_value=0.0, max_value=100.0, value=85.0, step=0.1)
             with col_a2:
-                fgsm_acc = st.number_input("FGSM Accuracy (%)", min_value=0.0, max_value=100.0, value=60.0, step=0.1)
+                fgsm_acc = st.number_input("FGSM Acc (%)", min_value=0.0, max_value=100.0, value=60.0, step=0.1)
             with col_a3:
-                pgd_acc = st.number_input("PGD Accuracy (%)", min_value=0.0, max_value=100.0, value=45.0, step=0.1)
+                pgd_acc = st.number_input("PGD Acc (%)", min_value=0.0, max_value=100.0, value=48.0, step=0.1)
             
-            epochs = st.number_input("Epochs", min_value=1, max_value=1000, value=20, step=1)
+            epochs = st.number_input("Training Epochs", min_value=1, max_value=1000, value=20, step=1)
             
             submitted = st.form_submit_button("📥 Save Experiment to Workspace", use_container_width=True)
             
             if submitted:
                 if not exp_name.strip():
-                    st.error("⚠️ Please provide an Experiment Name.")
-                elif fgsm_acc > clean_acc or pgd_acc > clean_acc:
-                    st.warning("⚠️ Warning: FGSM or PGD accuracy exceeds Clean Accuracy. Please verify values.")
-                    new_entry = pd.DataFrame([{
-                        "Experiment Name": exp_name,
-                        "Model Name": model_name,
-                        "Dataset": dataset,
-                        "Fine-tuning Method": finetune_method,
-                        "Clean Accuracy (%)": clean_acc,
-                        "FGSM Accuracy (%)": fgsm_acc,
-                        "PGD Accuracy (%)": pgd_acc,
-                        "Epsilon": epsilon,
-                        "Epochs": epochs
-                    }])
-                    st.session_state.experiments = pd.concat([st.session_state.experiments, new_entry], ignore_index=True)
-                    st.success(f"✅ Added '{exp_name}' to workspace!")
-                    st.rerun()
+                    st.error("⚠️ Please enter an Experiment Name.")
                 else:
-                    new_entry = pd.DataFrame([{
-                        "Experiment Name": exp_name,
-                        "Model Name": model_name,
-                        "Dataset": dataset,
-                        "Fine-tuning Method": finetune_method,
+                    if fgsm_acc > clean_acc or pgd_acc > clean_acc:
+                        st.warning("⚠️ Warning: FGSM/PGD accuracy exceeds Clean Accuracy. Please verify inputs.")
+                    
+                    new_row = pd.DataFrame([{
+                        "Experiment Name": exp_name.strip(),
+                        "Model Name": model_name.strip(),
+                        "Dataset": dataset.strip(),
+                        "Fine-tuning Method": finetune_method.strip(),
                         "Clean Accuracy (%)": clean_acc,
                         "FGSM Accuracy (%)": fgsm_acc,
                         "PGD Accuracy (%)": pgd_acc,
-                        "Epsilon": epsilon,
-                        "Epochs": epochs
+                        "Epsilon": epsilon.strip(),
+                        "Epochs": int(epochs)
                     }])
-                    st.session_state.experiments = pd.concat([st.session_state.experiments, new_entry], ignore_index=True)
-                    st.success(f"✅ Added '{exp_name}' to workspace!")
+                    st.session_state.experiments = pd.concat([st.session_state.experiments, new_row], ignore_index=True)
+                    st.success(f"✅ Added '{exp_name}' successfully!")
                     st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with tab2:
-        st.markdown("### 📁 Batch Import / Export CSV")
-        st.markdown("Upload a pre-formatted CSV file containing experiment logs.")
-        
-        uploaded_file = st.file_uploader("Upload Experiment CSV", type=["csv"])
+        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+        st.markdown("### 📁 Batch CSV Import / Export")
+        uploaded_file = st.file_uploader("Upload Experiment Log (.csv)", type=["csv"])
         if uploaded_file is not None:
             try:
                 uploaded_df = pd.read_csv(uploaded_file)
-                required_cols = ["Experiment Name", "Clean Accuracy (%)", "FGSM Accuracy (%)", "PGD Accuracy (%)"]
-                missing = [c for c in required_cols if c not in uploaded_df.columns]
+                req_cols = ["Experiment Name", "Clean Accuracy (%)", "FGSM Accuracy (%)", "PGD Accuracy (%)"]
+                missing = [c for c in req_cols if c not in uploaded_df.columns]
                 if missing:
-                    st.error(f"❌ Uploaded CSV is missing required columns: {missing}")
+                    st.error(f"❌ Missing required CSV columns: {missing}")
                 else:
                     st.session_state.experiments = pd.concat([st.session_state.experiments, uploaded_df], ignore_index=True).drop_duplicates(subset=["Experiment Name"])
-                    st.success("✅ Batch experiments imported successfully!")
+                    st.success("✅ Batch dataset imported successfully!")
                     st.rerun()
             except Exception as e:
-                st.error(f"❌ Error reading CSV file: {e}")
+                st.error(f"❌ Error loading CSV: {e}")
 
         st.markdown("---")
-        st.markdown("#### 📥 Sample Data Download")
         sample_csv_data = """Experiment Name,Model Name,Dataset,Fine-tuning Method,Clean Accuracy (%),FGSM Accuracy (%),PGD Accuracy (%),Epsilon,Epochs
 ViT-B/16 Baseline,ViT-B/16,CIFAR-10,Standard Fine-Tuning,92.4,24.1,2.8,8/255,10
 ViT-B/16 FGSM-AT,ViT-B/16,CIFAR-10,FGSM Adversarial Training,88.2,65.4,18.2,8/255,15
@@ -434,20 +457,20 @@ ViT-B/16 TRADES,ViT-B/16,CIFAR-10,TRADES (beta=6.0),83.1,59.8,51.4,8/255,25"""
             mime="text/csv",
             use_container_width=True
         )
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("### 📊 Active Experiments & Drop Calculations")
+    st.markdown("### 📊 Active Experiments & Accuracy Drop Table")
     
     if st.session_state.experiments.empty:
-        st.info("No experiments currently loaded. Enter an experiment above or load sample data.")
+        st.info("No experiments in workspace. Enter an experiment above or reset sample data.")
     else:
         calc_df = calculate_metrics(st.session_state.experiments)
         st.dataframe(
             calc_df[[
-                "Experiment Name", "Model Name", "Clean Accuracy (%)", 
-                "FGSM Accuracy (%)", "FGSM Accuracy Drop (%)", 
-                "PGD Accuracy (%)", "PGD Accuracy Drop (%)", 
-                "Robustness Score"
+                "Experiment Name", "Model Name", "Fine-tuning Method",
+                "Clean Accuracy (%)", "FGSM Accuracy (%)", "FGSM Drop (%)", 
+                "PGD Accuracy (%)", "PGD Drop (%)", "Robustness Score"
             ]],
             use_container_width=True
         )
@@ -456,194 +479,275 @@ ViT-B/16 TRADES,ViT-B/16,CIFAR-10,TRADES (beta=6.0),83.1,59.8,51.4,8/255,25"""
 # PAGE 3: MODEL COMPARISON
 # ---------------------------------------------------------
 elif page == "📊 Model Comparison":
-    st.markdown("## 📊 Model Comparison & Robustness Leaderboard")
-    st.caption("Side-by-side performance evaluation, weighted robustness ranking, and comparative charts.")
+    st.markdown("## 📊 Model Comparison & Leaderboard")
+    st.caption("Comprehensive comparative metrics, best-in-class callouts, and multi-axis charts.")
     
     if st.session_state.experiments.empty:
-        st.warning("⚠️ No experiment data available. Please add experiments in the Experiment Analyzer.")
+        st.warning("⚠️ Workspace is empty. Add experiments in the Experiment Analyzer.")
     else:
         calc_df = calculate_metrics(st.session_state.experiments)
         
-        # Top Metrics & Best Models Callout
+        # Best Models Indicators
         best_clean = calc_df.loc[calc_df["Clean Accuracy (%)"].idxmax()]
         best_fgsm = calc_df.loc[calc_df["FGSM Accuracy (%)"].idxmax()]
         best_pgd = calc_df.loc[calc_df["PGD Accuracy (%)"].idxmax()]
         best_overall = calc_df.loc[calc_df["Robustness Score"].idxmax()]
         
-        m_col1, m_col2, m_col3, m_col4 = st.columns(4)
-        with m_col1:
-            st.markdown("""
-            <div class="metric-container">
-                <div class="metric-label">Best Clean Accuracy</div>
-                <div class="metric-value">{:.1f}%</div>
-                <div style="font-size:0.8rem; color:#E2E8F0;">{}</div>
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            st.markdown(f"""
+            <div class="metric-box">
+                <div class="metric-lbl">Best Clean Acc</div>
+                <div class="metric-val">{best_clean["Clean Accuracy (%)"]:.1f}%</div>
+                <div class="metric-sub">{best_clean["Experiment Name"]}</div>
             </div>
-            """.format(best_clean["Clean Accuracy (%)"], best_clean["Experiment Name"]), unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
             
-        with m_col2:
-            st.markdown("""
-            <div class="metric-container">
-                <div class="metric-label">Best FGSM Defense</div>
-                <div class="metric-value">{:.1f}%</div>
-                <div style="font-size:0.8rem; color:#E2E8F0;">{}</div>
+        with c2:
+            st.markdown(f"""
+            <div class="metric-box">
+                <div class="metric-lbl">Best FGSM Defense</div>
+                <div class="metric-val">{best_fgsm["FGSM Accuracy (%)"]:.1f}%</div>
+                <div class="metric-sub">{best_fgsm["Experiment Name"]}</div>
             </div>
-            """.format(best_fgsm["FGSM Accuracy (%)"], best_fgsm["Experiment Name"]), unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
             
-        with m_col3:
-            st.markdown("""
-            <div class="metric-container">
-                <div class="metric-label">Best PGD Defense</div>
-                <div class="metric-value">{:.1f}%</div>
-                <div style="font-size:0.8rem; color:#E2E8F0;">{}</div>
+        with c3:
+            st.markdown(f"""
+            <div class="metric-box">
+                <div class="metric-lbl">Best PGD Defense</div>
+                <div class="metric-val">{best_pgd["PGD Accuracy (%)"]:.1f}%</div>
+                <div class="metric-sub">{best_pgd["Experiment Name"]}</div>
             </div>
-            """.format(best_pgd["PGD Accuracy (%)"], best_pgd["Experiment Name"]), unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
             
-        with m_col4:
-            st.markdown("""
-            <div class="metric-container">
-                <div class="metric-label">Top Robustness Score</div>
-                <div class="metric-value">{:.2f}</div>
-                <div style="font-size:0.8rem; color:#E2E8F0;">{}</div>
+        with c4:
+            st.markdown(f"""
+            <div class="metric-box">
+                <div class="metric-lbl">Top Robustness Score</div>
+                <div class="metric-val">{best_overall["Robustness Score"]:.2f}</div>
+                <div class="metric-sub">{best_overall["Experiment Name"]}</div>
             </div>
-            """.format(best_overall["Robustness Score"], best_overall["Experiment Name"]), unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
         st.markdown("---")
         
-        # Interactive Plotly Multi-Bar Chart
-        st.markdown("### 📈 Clean vs. FGSM vs. PGD Accuracy Comparison")
+        col_g1, col_g2 = st.columns([3, 2])
         
-        fig = go.Figure()
-        
-        fig.add_trace(go.Bar(
-            x=calc_df["Experiment Name"],
-            y=calc_df["Clean Accuracy (%)"],
-            name="Clean Accuracy",
-            marker_color="#3B82F6"
-        ))
-        
-        fig.add_trace(go.Bar(
-            x=calc_df["Experiment Name"],
-            y=calc_df["FGSM Accuracy (%)"],
-            name="FGSM Accuracy",
-            marker_color="#F59E0B"
-        ))
-        
-        fig.add_trace(go.Bar(
-            x=calc_df["Experiment Name"],
-            y=calc_df["PGD Accuracy (%)"],
-            name="PGD Accuracy",
-            marker_color="#EF4444"
-        ))
-        
-        fig.update_layout(
-            barmode="group",
-            xaxis_title="Experiment",
-            yaxis_title="Accuracy (%)",
-            yaxis=dict(range=[0, 100]),
-            template="plotly_dark",
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-            margin=dict(l=40, r=40, t=60, b=40)
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
+        with col_g1:
+            st.markdown("### 📈 Grouped Performance Bar Chart")
+            fig_bar = go.Figure()
+            fig_bar.add_trace(go.Bar(x=calc_df["Experiment Name"], y=calc_df["Clean Accuracy (%)"], name="Clean Accuracy", marker_color="#38BDF8"))
+            fig_bar.add_trace(go.Bar(x=calc_df["Experiment Name"], y=calc_df["FGSM Accuracy (%)"], name="FGSM Accuracy", marker_color="#F59E0B"))
+            fig_bar.add_trace(go.Bar(x=calc_df["Experiment Name"], y=calc_df["PGD Accuracy (%)"], name="PGD Accuracy", marker_color="#EF4444"))
+            
+            fig_bar.update_layout(
+                barmode="group",
+                yaxis=dict(title="Accuracy (%)", range=[0, 100]),
+                template="plotly_dark",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            )
+            st.plotly_chart(fig_bar, use_container_width=True)
+
+        with col_g2:
+            st.markdown("### 🕸️ Multi-Axis Radar Chart")
+            # Create Radar chart for top 3 models
+            radar_df = calc_df.head(3)
+            fig_radar = go.Figure()
+            
+            categories = ['Clean Acc', 'FGSM Acc', 'PGD Acc', 'Robustness Score']
+            for _, row in radar_df.iterrows():
+                fig_radar.add_trace(go.Scatterpolar(
+                    r=[row['Clean Accuracy (%)'], row['FGSM Accuracy (%)'], row['PGD Accuracy (%)'], row['Robustness Score']],
+                    theta=categories,
+                    fill='toself',
+                    name=row['Experiment Name']
+                ))
+            
+            fig_radar.update_layout(
+                polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+                template="plotly_dark",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                showlegend=True
+            )
+            st.plotly_chart(fig_radar, use_container_width=True)
 
         st.markdown("---")
+        st.markdown("### 🏆 Robustness Leaderboard Table")
         
-        # Leaderboard Table
-        st.markdown("### 🏆 Comprehensive Leaderboard")
-        st.caption("Sorted by Robustness Score = 0.20 × Clean + 0.35 × FGSM + 0.45 × PGD")
-        
-        leaderboard_df = calc_df.sort_values(by="Robustness Score", ascending=False).reset_index(drop=True)
-        leaderboard_df.index += 1
+        leader_df = calc_df.sort_values(by="Robustness Score", ascending=False).reset_index(drop=True)
+        leader_df.index += 1
         
         st.dataframe(
-            leaderboard_df[[
+            leader_df[[
                 "Experiment Name", "Model Name", "Fine-tuning Method",
                 "Clean Accuracy (%)", "FGSM Accuracy (%)", "PGD Accuracy (%)",
-                "FGSM Accuracy Drop (%)", "PGD Accuracy Drop (%)", "Robustness Score"
+                "FGSM Drop (%)", "PGD Drop (%)", "Robustness Score"
             ]],
             use_container_width=True
         )
         
-        # Export CSV Button
-        csv_buffer = leaderboard_df.to_csv(index=False).encode('utf-8')
+        csv_bytes = leader_df.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label="📥 Download Full Comparison Report (CSV)",
-            data=csv_buffer,
-            file_name="robustlens_model_comparison.csv",
+            label="📥 Download Full Leaderboard CSV Report",
+            data=csv_bytes,
+            file_name="robustlens_leaderboard.csv",
             mime="text/csv"
         )
 
 # ---------------------------------------------------------
-# PAGE 4: AI RESEARCH ASSISTANT
+# PAGE 4: PARETO TRADE-OFF FRONTIER
 # ---------------------------------------------------------
-elif page == "🤖 AI Research Assistant":
-    st.markdown("## 🤖 AI Research Assistant")
-    st.caption("Automated insights, trade-off analysis, and experiment recommendations powered by Google Gemini AI.")
+elif page == "📈 Pareto Trade-Off Frontier":
+    st.markdown("## 📈 Clean vs. Robust Accuracy Trade-Off Frontier")
+    st.caption("Analyze the Pareto Frontier: Clean Accuracy retention vs. PGD multi-step defense.")
     
     if st.session_state.experiments.empty:
-        st.warning("⚠️ Workspace is empty. Please add experiments or reset default data to generate AI insights.")
+        st.warning("⚠️ Workspace is empty. Add experiments in Experiment Analyzer.")
     else:
         calc_df = calculate_metrics(st.session_state.experiments)
         
-        # Gemini API Key Setup
+        fig_scatter = px.scatter(
+            calc_df,
+            x="Clean Accuracy (%)",
+            y="PGD Accuracy (%)",
+            size="Robustness Score",
+            color="Model Name",
+            hover_name="Experiment Name",
+            hover_data=["Fine-tuning Method", "FGSM Accuracy (%)", "Epochs"],
+            text="Experiment Name",
+            title="Pareto Trade-Off Frontier (Clean vs. PGD Defense)"
+        )
+        
+        fig_scatter.update_traces(textposition='top center', marker=dict(line=dict(width=1, color='White')))
+        fig_scatter.update_layout(
+            xaxis=dict(title="Clean Accuracy (%)", range=[50, 100]),
+            yaxis=dict(title="PGD Robust Accuracy (%)", range=[0, 100]),
+            template="plotly_dark",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            height=550
+        )
+        
+        st.plotly_chart(fig_scatter, use_container_width=True)
+        
+        st.markdown("""
+        <div class="glass-card">
+            <h4>💡 How to Interpret the Pareto Frontier:</h4>
+            <ul>
+                <li><b>Top-Right Quadrant</b>: Ideal models (High Clean Accuracy + High PGD Defense).</li>
+                <li><b>Top-Left Quadrant</b>: High Defense, but trade-off lost clean performance.</li>
+                <li><b>Bottom-Right Quadrant</b>: High Clean performance, but vulnerable under PGD attacks.</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# PAGE 5: EPSILON SIMULATOR
+# ---------------------------------------------------------
+elif page == "🎛️ Epsilon Simulator":
+    st.markdown("## 🎛️ Epsilon (ε) Attack Breakdown Simulator")
+    st.caption("Simulate accuracy breakdown across varying perturbation strengths ε.")
+    
+    if st.session_state.experiments.empty:
+        st.warning("⚠️ Workspace is empty. Add experiments in Experiment Analyzer.")
+    else:
+        calc_df = calculate_metrics(st.session_state.experiments)
+        
+        st.markdown("### ⚙️ Simulation Settings")
+        selected_model = st.selectbox("Select Model for Simulation", calc_df["Experiment Name"].unique())
+        model_row = calc_df[calc_df["Experiment Name"] == selected_model].iloc[0]
+        
+        eps_range = np.linspace(0, 16/255, 20)
+        eps_labels = [f"{int(e*255)}/255" for e in eps_range]
+        
+        # Empirical decay function model based on clean, fgsm, and pgd points
+        clean = model_row["Clean Accuracy (%)"]
+        fgsm = model_row["FGSM Accuracy (%)"]
+        pgd = model_row["PGD Accuracy (%)"]
+        
+        fgsm_curve = [clean * np.exp(- (e / (8/255)) * np.log(clean/max(fgsm, 0.1))) for e in eps_range]
+        pgd_curve = [clean * np.exp(- (e / (8/255)) * np.log(clean/max(pgd, 0.1))) for e in eps_range]
+        
+        fig_sim = go.Figure()
+        fig_sim.add_trace(go.Scatter(x=eps_labels, y=fgsm_curve, mode='lines+markers', name='Simulated FGSM Decay', line=dict(color='#F59E0B', width=3)))
+        fig_sim.add_trace(go.Scatter(x=eps_labels, y=pgd_curve, mode='lines+markers', name='Simulated PGD Decay', line=dict(color='#EF4444', width=3)))
+        
+        fig_sim.update_layout(
+            title=f"Attack Breakdown Curve: {selected_model}",
+            xaxis_title="Epsilon Perturbation Strength (ε)",
+            yaxis_title="Retained Accuracy (%)",
+            yaxis=dict(range=[0, 100]),
+            template="plotly_dark",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            height=480
+        )
+        
+        st.plotly_chart(fig_sim, use_container_width=True)
+
+# ---------------------------------------------------------
+# PAGE 6: AI RESEARCH ASSISTANT
+# ---------------------------------------------------------
+elif page == "🤖 AI Research Assistant":
+    st.markdown("## 🤖 AI Research Assistant")
+    st.caption("Paper-ready diagnostics, trade-off evaluation, and experiment recommendations powered by Google Gemini AI.")
+    
+    if st.session_state.experiments.empty:
+        st.warning("⚠️ Workspace is empty. Add experiments to generate AI research insights.")
+    else:
+        calc_df = calculate_metrics(st.session_state.experiments)
         api_key = get_gemini_key()
         
-        st.markdown("### 🔑 API Key Configuration")
+        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+        st.markdown("### 🔑 Gemini API Key Setup")
         user_key_input = st.text_input(
             "Google Gemini API Key",
             value=api_key,
             type="password",
             help="Stored in GEMINI_API_KEY environment variable or Streamlit secrets."
         )
-        
         final_api_key = user_key_input.strip() if user_key_input else api_key
+        st.markdown('</div>', unsafe_allow_html=True)
         
         st.markdown("---")
-        st.markdown("### 🧠 Generate Experimental Analysis")
-        
-        # Display data summary payload preview
-        with st.expander("🔍 Preview Data Payload Sent to Gemini AI"):
+        with st.expander("🔍 Inspect System Prompt & Payload Sent to Gemini AI"):
             st.json(calc_df.to_dict(orient="records"))
-            st.markdown("**System Prompt Instruction:**")
             st.code(SYSTEM_PROMPT, language="text")
 
-        if st.button("🚀 Analyze Experiments with Gemini AI", type="primary", use_container_width=True):
+        if st.button("🚀 Generate AI Diagnostic Analysis", type="primary", use_container_width=True):
             if not final_api_key:
-                st.error("❌ Google Gemini API Key is missing. Please set GEMINI_API_KEY environment variable, Streamlit secrets, or input it above.")
+                st.error("❌ Gemini API Key is missing. Please set GEMINI_API_KEY in secrets, environment, or input above.")
             else:
-                with st.spinner("🧠 Gemini AI is analyzing model trade-offs and robustness metrics..."):
-                    # Format prompt payload
+                with st.spinner("🧠 Gemini AI is analyzing model trade-offs & experimental logs..."):
                     payload_summary = calc_df.to_string(index=False)
                     user_query = f"""Here are the experimental results for evaluation:
 
 {payload_summary}
 
-Please analyze these results according to your instructions."""
+Please analyze these results strictly according to your instructions."""
 
                     ai_response_text = ""
                     try:
-                        # Official google-genai SDK call
                         from google import genai
                         from google.genai import types
                         
                         client = genai.Client(api_key=final_api_key)
-                        
-                        # Try recommended models in sequence
-                        model_name = "gemini-2.5-flash"
                         try:
-                            response = client.models.generate_content(
-                                model=model_name,
+                            res = client.models.generate_content(
+                                model="gemini-2.5-flash",
                                 contents=user_query,
                                 config=types.GenerateContentConfig(
                                     system_instruction=SYSTEM_PROMPT,
                                     temperature=0.3
                                 )
                             )
-                            ai_response_text = response.text
-                        except Exception as inner_e:
-                            # Fallback to gemini-1.5-flash or gemini-2.0-flash if 2.5 is unavailable
-                            response = client.models.generate_content(
+                            ai_response_text = res.text
+                        except Exception:
+                            res = client.models.generate_content(
                                 model="gemini-1.5-flash",
                                 contents=user_query,
                                 config=types.GenerateContentConfig(
@@ -651,48 +755,33 @@ Please analyze these results according to your instructions."""
                                     temperature=0.3
                                 )
                             )
-                            ai_response_text = response.text
-                            
-                    except ImportError:
-                        # Fallback for google-generativeai package if installed
-                        try:
-                            import google.generativeai as genai_old
-                            genai_old.configure(api_key=final_api_key)
-                            model = genai_old.GenerativeModel(
-                                model_name="gemini-1.5-flash",
-                                system_instruction=SYSTEM_PROMPT
-                            )
-                            response = model.generate_content(user_query)
-                            ai_response_text = response.text
-                        except Exception as e_old:
-                            st.error(f"❌ API Call Error: {e_old}")
-                    except Exception as gen_err:
-                        st.error(f"❌ Gemini Generation Error: {gen_err}")
+                            ai_response_text = res.text
+                    except Exception as err:
+                        st.error(f"❌ Gemini Generation Error: {err}")
                     
                     if ai_response_text:
                         st.session_state["last_ai_analysis"] = ai_response_text
 
-        # Display AI Result if available
         if "last_ai_analysis" in st.session_state:
             st.markdown("---")
-            st.markdown("### 📋 AI Analysis & Research Report")
+            st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+            st.markdown("### 📋 AI Diagnostic Research Report")
             st.markdown(st.session_state["last_ai_analysis"])
+            st.markdown('</div>', unsafe_allow_html=True)
             
-            st.markdown("---")
-            # Download Markdown Report
-            report_markdown = f"""# RobustLens AI - Research Analysis Report
+            report_md = f"""# RobustLens AI - Research Analysis Report
 
 ## Experimental Data Evaluated:
 ```
 {calc_df.to_string(index=False)}
 ```
 
-## AI Generated Analysis:
+## AI Generated Diagnostic Analysis:
 {st.session_state["last_ai_analysis"]}
 """
             st.download_button(
                 label="📥 Download Research Report (.md)",
-                data=report_markdown,
-                file_name="robustlens_ai_research_report.md",
+                data=report_md,
+                file_name="robustlens_ai_analysis.md",
                 mime="text/markdown"
             )
