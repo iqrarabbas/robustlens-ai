@@ -6,6 +6,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import os
 import io
+import re
 
 # ---------------------------------------------------------
 # PAGE CONFIGURATION & METADATA
@@ -86,6 +87,39 @@ st.markdown(r"""
     
     .glass-card p, .glass-card li, .glass-card code {
         color: #E2E8F0 !important;
+    }
+
+    /* Structured Section Cards */
+    .report-card-summary {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(30, 41, 59, 0.8)) !important;
+        border: 1px solid rgba(56, 189, 248, 0.4) !important;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+
+    .report-card-tradeoff {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(30, 41, 59, 0.8)) !important;
+        border: 1px solid rgba(245, 158, 11, 0.4) !important;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+
+    .report-card-recommendation {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(30, 41, 59, 0.8)) !important;
+        border: 1px solid rgba(16, 185, 129, 0.4) !important;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+
+    .report-card-limitation {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(30, 41, 59, 0.8)) !important;
+        border: 1px solid rgba(239, 68, 68, 0.4) !important;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 16px;
     }
     
     /* Metric Cards */
@@ -741,7 +775,7 @@ elif page == "🎛️ Epsilon Simulator":
         st.plotly_chart(fig_sim, use_container_width=True)
 
 # ---------------------------------------------------------
-# PAGE 6: AI RESEARCH ASSISTANT
+# PAGE 6: AI RESEARCH ASSISTANT (HIGHLY ORGANIZED UI)
 # ---------------------------------------------------------
 elif page == "🤖 AI Research Assistant":
     st.markdown("## 🤖 AI Research Assistant")
@@ -753,27 +787,46 @@ elif page == "🤖 AI Research Assistant":
         calc_df = calculate_metrics(st.session_state.experiments)
         api_key = get_gemini_key()
         
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        st.markdown("### 🔑 Gemini API Key Setup")
-        user_key_input = st.text_input(
-            "Google Gemini API Key",
-            value=api_key,
-            type="password",
-            help="Stored in GEMINI_API_KEY environment variable or Streamlit secrets."
-        )
-        final_api_key = user_key_input.strip() if user_key_input else api_key
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        st.markdown("---")
-        with st.expander("🔍 Inspect System Prompt & Payload Sent to Gemini AI"):
-            st.json(calc_df.to_dict(orient="records"))
-            st.code(SYSTEM_PROMPT, language="text")
-
-        if st.button("🚀 Generate AI Diagnostic Analysis", type="primary", use_container_width=True):
-            if not final_api_key:
-                st.error("❌ Gemini API Key is missing. Please set GEMINI_API_KEY in secrets, environment, or input above.")
+        # Header Controls & Key Status Card
+        col_k1, col_k2 = st.columns([3, 2])
+        with col_k1:
+            st.markdown('<div class="glass-card" style="padding:16px;">', unsafe_allow_html=True)
+            user_key_input = st.text_input(
+                "🔑 Google Gemini API Key",
+                value=api_key,
+                type="password",
+                placeholder="AIzaSy...",
+                help="Key can be set in GEMINI_API_KEY environment variable or Streamlit secrets."
+            )
+            final_api_key = user_key_input.strip() if user_key_input else api_key
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+        with col_k2:
+            st.markdown('<div class="glass-card" style="padding:16px; text-align:center;">', unsafe_allow_html=True)
+            if final_api_key:
+                st.markdown("#### API Status: <span style='color:#34D399;'>🟢 Connected</span>", unsafe_allow_html=True)
+                st.caption("Gemini 2.5 Flash / 1.5 Flash Model Ready")
             else:
-                with st.spinner("🧠 Gemini AI is analyzing model trade-offs & experimental logs..."):
+                st.markdown("#### API Status: <span style='color:#F87171;'>🔴 Key Required</span>", unsafe_allow_html=True)
+                st.caption("Enter API key to generate insights")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown("---")
+        
+        # Generation Button & Inspector
+        col_b1, col_b2 = st.columns([2, 3])
+        with col_b1:
+            run_ai = st.button("🚀 Run AI Research Analysis", type="primary", use_container_width=True)
+        with col_b2:
+            with st.expander("🔍 Inspect System Prompt & Payload Sent to Gemini"):
+                st.json(calc_df.to_dict(orient="records"))
+                st.code(SYSTEM_PROMPT, language="text")
+
+        if run_ai:
+            if not final_api_key:
+                st.error("❌ Gemini API Key is missing. Please enter your API key above.")
+            else:
+                with st.spinner("🧠 Gemini AI is synthesizing model performance and trade-offs..."):
                     payload_summary = calc_df.to_string(index=False)
                     user_query = f"""Here are the experimental results for evaluation:
 
@@ -813,26 +866,131 @@ Please analyze these results strictly according to your instructions."""
                     if ai_response_text:
                         st.session_state["last_ai_analysis"] = ai_response_text
 
+        # ORGANIZED DISPLAY OF AI RESULTS
         if "last_ai_analysis" in st.session_state:
-            st.markdown("---")
-            st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-            st.markdown("### 📋 AI Diagnostic Research Report")
-            st.markdown(st.session_state["last_ai_analysis"])
-            st.markdown('</div>', unsafe_allow_html=True)
+            raw_text = st.session_state["last_ai_analysis"]
             
-            report_md = f"""# RobustLens AI - Research Analysis Report
+            st.markdown("---")
+            st.markdown("### 📋 Structured Academic Diagnostic Report")
+            
+            tab_report1, tab_report2 = st.tabs(["📑 Organized Visual Dashboard", "📄 Raw Paper Report & Export"])
+            
+            with tab_report1:
+                # Helper function to extract sections from AI response text
+                def parse_sections(text):
+                    sections = {
+                        "summary": "",
+                        "comparison": "",
+                        "finetuning": "",
+                        "tradeoff": "",
+                        "next_experiment": "",
+                        "limitations": ""
+                    }
+                    
+                    # Splitting text into paragraphs or numbered sections
+                    blocks = re.split(r'\n(?=\d+\.|\#\#|\*\*Task|\*\*1|\*\*2|\*\*3|\*\*4|\*\*5|\*\*6)', text)
+                    
+                    for block in blocks:
+                        lower = block.lower()
+                        if "main result" in lower or "summarise" in lower or "summary" in lower or "1." in block[:4]:
+                            sections["summary"] += block + "\n"
+                        elif "trade" in lower or "clean-accuracy versus" in lower or "4." in block[:4]:
+                            sections["tradeoff"] += block + "\n"
+                        elif "recommend" in lower or "next experiment" in lower or "5." in block[:4]:
+                            sections["next_experiment"] += block + "\n"
+                        elif "limitation" in lower or "caution" in lower or "6." in block[:4]:
+                            sections["limitations"] += block + "\n"
+                        elif "fine-tuning" in lower or "improved robustness" in lower or "3." in block[:4]:
+                            sections["finetuning"] += block + "\n"
+                        else:
+                            sections["comparison"] += block + "\n"
+                    return sections
 
-## Experimental Data Evaluated:
+                parsed = parse_sections(raw_text)
+                
+                # Card 1: Main Finding & Executive Summary
+                st.markdown(f"""
+                <div class="report-card-summary">
+                    <h3 style="color:#38BDF8 !important; margin-top:0;">📌 1. Main Findings & Executive Summary</h3>
+                    <div style="font-size:1.05rem; line-height:1.7;">
+                        {parsed['summary'] if parsed['summary'].strip() else raw_text[:300] + '...'}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Card 2 & 3 Dual Columns
+                col_r1, col_r2 = st.columns(2)
+                
+                with col_r1:
+                    st.markdown(f"""
+                    <div class="report-card-tradeoff">
+                        <h4 style="color:#FBBF24 !important; margin-top:0;">⚖️ 2. Clean vs. Robust Accuracy Trade-Off</h4>
+                        <div style="font-size:0.98rem; line-height:1.7;">
+                            {parsed['tradeoff'] if parsed['tradeoff'].strip() else 'Analyzing trade-off between clean classification and attack resistance...'}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                with col_r2:
+                    st.markdown(f"""
+                    <div class="glass-card" style="border-color:rgba(129, 140, 248, 0.4);">
+                        <h4 style="color:#818CF8 !important; margin-top:0;">🛡️ 3. Fine-Tuning & Attack Defense Breakdown</h4>
+                        <div style="font-size:0.98rem; line-height:1.7;">
+                            {parsed['finetuning'] if parsed['finetuning'].strip() else parsed['comparison']}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                # Card 4: Recommended Next Experiment
+                st.markdown(f"""
+                <div class="report-card-recommendation">
+                    <h4 style="color:#34D399 !important; margin-top:0;">🧪 4. Recommended Next Experiment</h4>
+                    <div style="font-size:1.02rem; line-height:1.7;">
+                        {parsed['next_experiment'] if parsed['next_experiment'].strip() else 'Perform evaluation with AutoAttack ensemble to rule out gradient obfuscation.'}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                # Card 5: Research Limitations & Caveats
+                if parsed['limitations'].strip():
+                    st.markdown(f"""
+                    <div class="report-card-limitation">
+                        <h4 style="color:#F87171 !important; margin-top:0;">⚠️ 5. Research Limitations & Caveats</h4>
+                        <div style="font-size:0.98rem; line-height:1.7;">
+                            {parsed['limitations']}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            with tab_report2:
+                st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+                st.markdown(raw_text)
+                st.markdown('</div>', unsafe_allow_html=True)
+                
+                report_md = f"""# RobustLens AI - Academic Research Report
+
+## Experimental Benchmark Logs Evaluated:
 ```
 {calc_df.to_string(index=False)}
 ```
 
 ## AI Generated Diagnostic Analysis:
-{st.session_state["last_ai_analysis"]}
+{raw_text}
 """
-            st.download_button(
-                label="📥 Download Research Report (.md)",
-                data=report_md,
-                file_name="robustlens_ai_analysis.md",
-                mime="text/markdown"
-            )
+                col_d1, col_d2 = st.columns(2)
+                with col_d1:
+                    st.download_button(
+                        label="📥 Download Research Report (.md)",
+                        data=report_md,
+                        file_name="robustlens_ai_analysis_report.md",
+                        mime="text/markdown",
+                        use_container_width=True
+                    )
+                with col_d2:
+                    st.download_button(
+                        label="📥 Download Benchmark Metrics (.csv)",
+                        data=calc_df.to_csv(index=False).encode('utf-8'),
+                        file_name="robustlens_calculated_metrics.csv",
+                        mime="text/csv",
+                        use_container_width=True
+                    )
