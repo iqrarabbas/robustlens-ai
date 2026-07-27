@@ -1,0 +1,6 @@
+Experiment Name,Model Name,Dataset,Fine-tuning Method,Clean Accuracy (%),FGSM Accuracy (%),PGD Accuracy (%),Epsilon,Epochs
+ViT-B/16 Baseline,ViT-B/16,CIFAR-10,Standard Fine-Tuning,92.4,24.1,2.8,8/255,10
+ViT-B/16 FGSM-AT,ViT-B/16,CIFAR-10,FGSM Adversarial Training,88.2,65.4,18.2,8/255,15
+ViT-B/16 PGD-7 AT,ViT-B/16,CIFAR-10,PGD-7 Adversarial Training,84.6,61.2,48.5,8/255,20
+ViT-B/16 TRADES,ViT-B/16,CIFAR-10,TRADES (beta=6.0),83.1,59.8,51.4,8/255,25
+ResNet-50 PGD-10,ResNet-50,CIFAR-10,PGD-10 Adversarial Training,82.0,56.3,44.7,8/255,20
