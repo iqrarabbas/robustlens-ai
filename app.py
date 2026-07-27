@@ -26,11 +26,22 @@ st.markdown(r"""
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap');
     
     /* Universal Typography & High-Contrast Colors */
-    html, body, [class*="css"], .stMarkdown, p, div, label, span, li, h1, h2, h3, h4, h5, h6 {
-        font-family: 'Inter', sans-serif !important;
+    html, body, p, div, label, li, h1, h2, h3, h4, h5, h6 {
+        font-family: 'Inter', sans-serif;
         color: #F8FAFC !important;
     }
     
+    /* Exclude & Protect Streamlit Icon Fonts from Font Overrides */
+    [data-testid="stIcon"], 
+    [class*="material-symbols"], 
+    [class*="material-icons"], 
+    [class*="StreamlitIcon"], 
+    i, 
+    summary span:first-child,
+    button [class*="css"] {
+        font-family: inherit !important;
+    }
+
     /* Main Background */
     .stApp {
         background-color: #0F172A !important;
@@ -788,9 +799,9 @@ elif page == "🤖 AI Research Assistant":
         api_key = get_gemini_key()
         
         # Header Controls & Key Status Card
-        col_k1, col_k2 = st.columns([3, 2])
+        st.markdown('<div class="glass-card" style="padding:20px;">', unsafe_allow_html=True)
+        col_k1, col_k2 = st.columns([3, 1.2])
         with col_k1:
-            st.markdown('<div class="glass-card" style="padding:16px;">', unsafe_allow_html=True)
             user_key_input = st.text_input(
                 "🔑 Google Gemini API Key",
                 value=api_key,
@@ -799,28 +810,24 @@ elif page == "🤖 AI Research Assistant":
                 help="Key can be set in GEMINI_API_KEY environment variable or Streamlit secrets."
             )
             final_api_key = user_key_input.strip() if user_key_input else api_key
-            st.markdown('</div>', unsafe_allow_html=True)
-            
         with col_k2:
-            st.markdown('<div class="glass-card" style="padding:16px; text-align:center;">', unsafe_allow_html=True)
+            st.markdown("<div style='margin-top: 32px; text-align: right;'>", unsafe_allow_html=True)
             if final_api_key:
-                st.markdown("#### API Status: <span style='color:#34D399;'>🟢 Connected</span>", unsafe_allow_html=True)
-                st.caption("Gemini 2.5 Flash / 1.5 Flash Model Ready")
+                st.markdown("<span style='background:rgba(52,211,153,0.15); color:#34D399; padding:8px 14px; border-radius:8px; border:1px solid rgba(52,211,153,0.3); font-weight:600; font-size:0.9rem;'>🟢 API Connected</span>", unsafe_allow_html=True)
             else:
-                st.markdown("#### API Status: <span style='color:#F87171;'>🔴 Key Required</span>", unsafe_allow_html=True)
-                st.caption("Enter API key to generate insights")
-            st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown("<span style='background:rgba(248,113,113,0.15); color:#F87171; padding:8px 14px; border-radius:8px; border:1px solid rgba(248,113,113,0.3); font-weight:600; font-size:0.9rem;'>🔴 Key Required</span>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown("---")
         
-        # Generation Button & Inspector
-        col_b1, col_b2 = st.columns([2, 3])
-        with col_b1:
-            run_ai = st.button("🚀 Run AI Research Analysis", type="primary", use_container_width=True)
-        with col_b2:
-            with st.expander("🔍 Inspect System Prompt & Payload Sent to Gemini"):
-                st.json(calc_df.to_dict(orient="records"))
-                st.code(SYSTEM_PROMPT, language="text")
+        # Generation Action Button
+        run_ai = st.button("🚀 Run AI Research Analysis", type="primary", use_container_width=True)
+        
+        # System Prompt & Payload Inspector
+        with st.expander("🔍 Inspect System Prompt & Payload Sent to Gemini"):
+            st.json(calc_df.to_dict(orient="records"))
+            st.code(SYSTEM_PROMPT, language="text")
 
         if run_ai:
             if not final_api_key:
