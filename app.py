@@ -18,125 +18,162 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# CUSTOM CSS STYLING & GLASSMORPHISM AESTHETICS
+# HIGH-CONTRAST CSS STYLING & GLASSMORPHISM AESTHETICS
 # ---------------------------------------------------------
 st.markdown(r"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap');
     
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+    /* Universal Typography & High-Contrast Colors */
+    html, body, [class*="css"], .stMarkdown, p, div, label, span, li, h1, h2, h3, h4, h5, h6 {
+        font-family: 'Inter', sans-serif !important;
+        color: #F8FAFC !important;
     }
     
-    h1, h2, h3, h4, h5, h6 {
-        font-family: 'Outfit', sans-serif;
-    }
-    
-    /* Main Background Glow */
+    /* Main Background */
     .stApp {
-        background: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
+        background-color: #0F172A !important;
+        background: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #0f172a 60%, #020617 100%) !important;
     }
     
-    /* Header Gradient & Badges */
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background-color: #1E293B !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    [data-testid="stSidebar"] * {
+        color: #F8FAFC !important;
+    }
+
+    /* Radio Button Labels */
+    [data-testid="stRadioButton"] label p {
+        color: #F8FAFC !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Header Gradient Title */
     .header-title {
         background: linear-gradient(135deg, #38BDF8 0%, #818CF8 50%, #C084FC 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-        font-size: 2.8rem;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        font-family: 'Outfit', sans-serif !important;
+        font-weight: 800 !important;
+        font-size: 2.8rem !important;
         letter-spacing: -0.02em;
         margin-bottom: 0.2rem;
     }
     
     .sub-title {
-        color: #94A3B8;
-        font-size: 1.15rem;
-        font-weight: 400;
+        color: #94A3B8 !important;
+        font-size: 1.15rem !important;
+        font-weight: 400 !important;
         margin-bottom: 1.5rem;
     }
     
-    /* Glass Cards */
+    /* Glass Containers */
     .glass-card {
-        background: rgba(30, 41, 59, 0.6);
+        background: rgba(30, 41, 59, 0.75) !important;
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
         border-radius: 16px;
         padding: 24px;
         margin-bottom: 20px;
         box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-        transition: transform 0.2s ease, border-color 0.2s ease;
     }
     
-    .glass-card:hover {
-        border-color: rgba(99, 102, 241, 0.4);
+    .glass-card p, .glass-card li, .glass-card code {
+        color: #E2E8F0 !important;
     }
     
-    /* Metric Card Customization */
+    /* Metric Cards */
     .metric-box {
-        background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)) !important;
+        border: 1px solid rgba(56, 189, 248, 0.3) !important;
         border-radius: 14px;
         padding: 18px 12px;
         text-align: center;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
     
     .metric-val {
-        font-family: 'Outfit', sans-serif;
-        font-size: 2.1rem;
-        font-weight: 700;
-        color: #38BDF8;
+        font-family: 'Outfit', sans-serif !important;
+        font-size: 2.1rem !important;
+        font-weight: 700 !important;
+        color: #38BDF8 !important;
         margin: 4px 0;
     }
     
     .metric-lbl {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #94A3B8;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        color: #94A3B8 !important;
         text-transform: uppercase;
         letter-spacing: 0.08em;
     }
 
     .metric-sub {
-        font-size: 0.85rem;
-        color: #CBD5E1;
-        font-weight: 500;
+        font-size: 0.85rem !important;
+        color: #F8FAFC !important;
+        font-weight: 500 !important;
+    }
+
+    /* Input Fields & Forms Contrast */
+    div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
+        background-color: #1E293B !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        color: #F8FAFC !important;
     }
     
-    /* Pill Badges */
-    .badge-tag {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.03em;
+    input {
+        color: #F8FAFC !important;
     }
-    
-    .badge-high {
-        background: rgba(16, 185, 129, 0.15);
-        color: #34D399;
-        border: 1px solid rgba(52, 211, 153, 0.3);
+
+    /* Form Label Styling */
+    .stTextInput > label, .stNumberInput > label, .stSelectbox > label, .stFileUploader > label {
+        color: #F8FAFC !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
     }
-    
-    .badge-mid {
-        background: rgba(245, 158, 11, 0.15);
-        color: #FBBF24;
-        border: 1px solid rgba(251, 191, 36, 0.3);
-    }
-    
-    .badge-low {
-        background: rgba(239, 68, 68, 0.15);
-        color: #F87171;
-        border: 1px solid rgba(248, 113, 113, 0.3);
-    }
-    
-    /* Styled Streamlit Dataframe */
+
+    /* Dataframe Table Headers & Cell Text */
     [data-testid="stDataFrame"] {
         border-radius: 12px;
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    }
+
+    /* Code Blocks */
+    pre, code {
+        background-color: #1E293B !important;
+        color: #38BDF8 !important;
+        border-radius: 8px;
+    }
+    
+    /* Button Customization */
+    .stButton > button {
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
+        color: #FFFFFF !important;
+        font-weight: 600 !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 8px 16px !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%) !important;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+    }
+
+    .stDownloadButton > button {
+        background: rgba(30, 41, 59, 0.8) !important;
+        color: #38BDF8 !important;
+        border: 1px solid #38BDF8 !important;
+        font-weight: 600 !important;
+        border-radius: 10px !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -244,7 +281,7 @@ def calculate_metrics(df):
         0.45 * calc["PGD Accuracy (%)"]
     ).round(2)
     
-    # Efficiency index
+    # Epoch Efficiency
     calc["Epoch Efficiency"] = (calc["Robustness Score"] / calc["Epochs"].astype(float)).round(2)
     
     return calc
@@ -310,18 +347,18 @@ if page == "🏠 Home":
         st.markdown(r"""
         <div class="glass-card">
             <h3>📌 The Core Research Challenge</h3>
-            <p style="color: #CBD5E1; line-height: 1.7;">
+            <p>
                 Deep Neural Networks—especially modern <b>Vision Transformers (ViTs)</b>—achieve remarkable clean classification performance. However, they are fragile under tiny, adversarial perturbations.
             </p>
-            <p style="color: #CBD5E1; line-height: 1.7;">
+            <p>
                 Evaluating defensive fine-tuning methods like <b>FGSM-AT</b>, <b>PGD-AT</b>, or <b>TRADES</b> introduces complex trade-offs between clean accuracy retention and adversarial defense strength.
             </p>
             <h4 style="margin-top: 15px;">💡 How RobustLens AI Helps:</h4>
-            <ul style="color: #CBD5E1; line-height: 1.8;">
-                <li><b>Automated Drop Metrics</b>: Computes $\text{Clean} - \text{FGSM}$ and $\text{Clean} - \text{PGD}$ accuracy degradation instantly.</li>
-                <li><b>Weighted Robustness Score</b>: Combines clean retention and attack defenses ($0.20\cdot\text{Clean} + 0.35\cdot\text{FGSM} + 0.45\cdot\text{PGD}$).</li>
+            <ul>
+                <li><b>Automated Drop Metrics</b>: Computes Clean - FGSM and Clean - PGD accuracy degradation instantly.</li>
+                <li><b>Weighted Robustness Score</b>: Combines clean retention and attack defenses (0.20·Clean + 0.35·FGSM + 0.45·PGD).</li>
                 <li><b>Interactive Visualizations</b>: Grouped multi-bar charts, Radar charts, and Pareto Frontier trade-off analysis.</li>
-                <li><b>Epsilon Attack Simulator</b>: Simulates model accuracy breakdown across increasing attack strengths ($\epsilon$).</li>
+                <li><b>Epsilon Attack Simulator</b>: Simulates model accuracy breakdown across increasing attack strengths (ε).</li>
                 <li><b>Gemini AI Diagnostics</b>: Custom system instruction evaluates trade-offs and suggests next steps.</li>
             </ul>
         </div>
@@ -331,7 +368,7 @@ if page == "🏠 Home":
         st.markdown("""
         <div class="glass-card">
             <h3>⚡ Quickstart Workflow</h3>
-            <ol style="color: #CBD5E1; line-height: 2.0; padding-left: 20px;">
+            <ol style="padding-left: 20px;">
                 <li><b>Experiment Analyzer</b>: Add custom experiment data or import CSV logs.</li>
                 <li><b>Model Comparison</b>: View performance leaderboards, radar charts, & best-in-class highlights.</li>
                 <li><b>Pareto Frontier</b>: Analyze clean vs. robust accuracy trade-offs.</li>
@@ -350,8 +387,8 @@ if page == "🏠 Home":
         <div class="glass-card">
             <h4>⚡ FGSM (Fast Gradient Sign Method)</h4>
             <p style="color: #94A3B8; font-size: 0.9rem;">Single-step linear gradient perturbation attack.</p>
-            <code style="color:#38BDF8;">x_adv = x + ε · sign(∇_x L(θ, x, y))</code>
-            <p style="color: #CBD5E1; margin-top: 10px; font-size: 0.95rem;">
+            <code>x_adv = x + ε · sign(∇_x L(θ, x, y))</code>
+            <p style="margin-top: 10px; font-size: 0.95rem;">
                 Fast baseline evaluation for first-order gradient alignment vulnerabilities.
             </p>
         </div>
@@ -361,8 +398,8 @@ if page == "🏠 Home":
         <div class="glass-card">
             <h4>🔄 PGD (Projected Gradient Descent)</h4>
             <p style="color: #94A3B8; font-size: 0.9rem;">Multi-step iterative projected gradient attack.</p>
-            <code style="color:#F43F5E;">x^{t+1} = Π_{x+S}(x^t + α · sign(∇_x L(θ, x^t, y)))</code>
-            <p style="color: #CBD5E1; margin-top: 10px; font-size: 0.95rem;">
+            <code>x^{t+1} = Π_{x+S}(x^t + α · sign(∇_x L(θ, x^t, y)))</code>
+            <p style="margin-top: 10px; font-size: 0.95rem;">
                 Considered the standard benchmark for non-obfuscated multi-step attack resistance.
             </p>
         </div>
@@ -543,18 +580,19 @@ elif page == "📊 Model Comparison":
             
             fig_bar.update_layout(
                 barmode="group",
-                yaxis=dict(title="Accuracy (%)", range=[0, 100]),
+                yaxis=dict(title="Accuracy (%)", range=[0, 100], gridcolor="rgba(255,255,255,0.1)"),
+                xaxis=dict(gridcolor="rgba(255,255,255,0.1)"),
                 template="plotly_dark",
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#F8FAFC"),
                 legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
             )
             st.plotly_chart(fig_bar, use_container_width=True)
 
         with col_g2:
             st.markdown("### 🕸️ Multi-Axis Radar Chart")
-            # Create Radar chart for top 3 models
-            radar_df = calc_df.head(3)
+            radar_df = calc_df.head(4)
             fig_radar = go.Figure()
             
             categories = ['Clean Acc', 'FGSM Acc', 'PGD Acc', 'Robustness Score']
@@ -567,10 +605,14 @@ elif page == "📊 Model Comparison":
                 ))
             
             fig_radar.update_layout(
-                polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+                polar=dict(
+                    radialaxis=dict(visible=True, range=[0, 100], gridcolor="rgba(255,255,255,0.15)"),
+                    angularaxis=dict(gridcolor="rgba(255,255,255,0.15)")
+                ),
                 template="plotly_dark",
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#F8FAFC"),
                 showlegend=True
             )
             st.plotly_chart(fig_radar, use_container_width=True)
@@ -624,11 +666,12 @@ elif page == "📈 Pareto Trade-Off Frontier":
         
         fig_scatter.update_traces(textposition='top center', marker=dict(line=dict(width=1, color='White')))
         fig_scatter.update_layout(
-            xaxis=dict(title="Clean Accuracy (%)", range=[50, 100]),
-            yaxis=dict(title="PGD Robust Accuracy (%)", range=[0, 100]),
+            xaxis=dict(title="Clean Accuracy (%)", range=[50, 100], gridcolor="rgba(255,255,255,0.1)"),
+            yaxis=dict(title="PGD Robust Accuracy (%)", range=[0, 100], gridcolor="rgba(255,255,255,0.1)"),
             template="plotly_dark",
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#F8FAFC"),
             height=550
         )
         
@@ -664,7 +707,6 @@ elif page == "🎛️ Epsilon Simulator":
         eps_range = np.linspace(0, 16/255, 20)
         eps_labels = [f"{int(e*255)}/255" for e in eps_range]
         
-        # Empirical decay function model based on clean, fgsm, and pgd points
         clean = model_row["Clean Accuracy (%)"]
         fgsm = model_row["FGSM Accuracy (%)"]
         pgd = model_row["PGD Accuracy (%)"]
@@ -680,10 +722,12 @@ elif page == "🎛️ Epsilon Simulator":
             title=f"Attack Breakdown Curve: {selected_model}",
             xaxis_title="Epsilon Perturbation Strength (ε)",
             yaxis_title="Retained Accuracy (%)",
-            yaxis=dict(range=[0, 100]),
+            yaxis=dict(range=[0, 100], gridcolor="rgba(255,255,255,0.1)"),
+            xaxis=dict(gridcolor="rgba(255,255,255,0.1)"),
             template="plotly_dark",
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#F8FAFC"),
             height=480
         )
         
