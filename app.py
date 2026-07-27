@@ -298,9 +298,16 @@ def get_gemini_key():
 # SIDEBAR NAVIGATION & QUICK CONTROLS
 # ---------------------------------------------------------
 with st.sidebar:
-    st.image("https://img.icons8.com/isometric-line/100/shield-protection.png", width=56)
-    st.markdown("## **RobustLens AI**")
-    st.caption("Adversarial Robustness Analytics & AI Research Assistant")
+    st.markdown("""
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 5px;">
+        <span style="font-size: 2.4rem;">🛡️</span>
+        <div>
+            <h2 style="margin:0; font-size: 1.45rem; font-weight: 800; color: #F8FAFC !important;">RobustLens AI</h2>
+            <span style="font-size: 0.75rem; color: #94A3B8 !important;">v1.2.0 • Pro Analytics</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    st.caption("Adversarial Robustness Analytics & AI Assistant")
     st.markdown("---")
     
     page = st.radio(
