@@ -391,71 +391,162 @@ with st.sidebar:
 # ---------------------------------------------------------
 if page == "🏠 Home":
     st.markdown('<div class="header-title">RobustLens AI</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">Adversarial Robustness Evaluation & Diagnostic Assistant for Vision Transformers & CNNs</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-title">Empowering Machine Learning Researchers & Students to Benchmark, Analyze, and Defend Models Against Adversarial Threats</div>', unsafe_allow_html=True)
     
-    c1, c2 = st.columns([3, 2])
-    
-    with c1:
-        st.markdown(r"""
-        <div class="glass-card">
-            <h3>📌 The Core Research Challenge</h3>
-            <p>
-                Deep Neural Networks—especially modern <b>Vision Transformers (ViTs)</b>—achieve remarkable clean classification performance. However, they are fragile under tiny, adversarial perturbations.
-            </p>
-            <p>
-                Evaluating defensive fine-tuning methods like <b>FGSM-AT</b>, <b>PGD-AT</b>, or <b>TRADES</b> introduces complex trade-offs between clean accuracy retention and adversarial defense strength.
-            </p>
-            <h4 style="margin-top: 15px;">💡 How RobustLens AI Helps:</h4>
-            <ul>
-                <li><b>Automated Drop Metrics</b>: Computes Clean - FGSM and Clean - PGD accuracy degradation instantly.</li>
-                <li><b>Weighted Robustness Score</b>: Combines clean retention and attack defenses (0.20·Clean + 0.35·FGSM + 0.45·PGD).</li>
-                <li><b>Interactive Visualizations</b>: Grouped multi-bar charts, Radar charts, and Pareto Frontier trade-off analysis.</li>
-                <li><b>Epsilon Attack Simulator</b>: Simulates model accuracy breakdown across increasing attack strengths (ε).</li>
-                <li><b>Gemini AI Diagnostics</b>: Custom system instruction evaluates trade-offs and suggests next steps.</li>
-            </ul>
+    # Quick Status Summary Row
+    calc_df = calculate_metrics(st.session_state.experiments)
+    c_m1, c_m2, c_m3, c_m4 = st.columns(4)
+    with c_m1:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-lbl">Active Experiments</div>
+            <div class="metric-val">{len(calc_df)}</div>
+            <div class="metric-sub">Loaded in Workspace</div>
         </div>
         """, unsafe_allow_html=True)
-        
-    with c2:
-        st.markdown("""
-        <div class="glass-card">
-            <h3>⚡ Quickstart Workflow</h3>
-            <ol style="padding-left: 20px;">
-                <li><b>Experiment Analyzer</b>: Add custom experiment data or import CSV logs.</li>
-                <li><b>Model Comparison</b>: View performance leaderboards, radar charts, & best-in-class highlights.</li>
-                <li><b>Pareto Frontier</b>: Analyze clean vs. robust accuracy trade-offs.</li>
-                <li><b>Epsilon Simulator</b>: Model performance degradation as attack strength grows.</li>
-                <li><b>AI Assistant</b>: Generate paper-ready commentary with Google Gemini.</li>
-            </ol>
+    with c_m2:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-lbl">Evaluated Models</div>
+            <div class="metric-val">{calc_df['Model Name'].nunique() if not calc_df.empty else 0}</div>
+            <div class="metric-sub">Architectures</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with c_m3:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-lbl">Attacks Benchmark</div>
+            <div class="metric-val">FGSM & PGD</div>
+            <div class="metric-sub">Single & Multi-step</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with c_m4:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-lbl">AI Diagnostic Engine</div>
+            <div class="metric-val" style="color:#34D399;">Gemini AI</div>
+            <div class="metric-sub">Custom Research Prompt</div>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("### 📚 Adversarial Attack Reference")
     
+    # 3-Step Visual Concept Flow
+    st.markdown("### 📌 How RobustLens AI Works (3-Step Concept)")
+    flow1, flow2, flow3 = st.columns(3)
+    
+    with flow1:
+        st.markdown(r"""
+        <div class="glass-card" style="height: 100%; border-top: 3px solid #38BDF8;">
+            <h4 style="color:#38BDF8 !important;">1️⃣ Clean Accuracy</h4>
+            <p style="font-size:0.95rem; line-height:1.6;">
+                Standard models (e.g. <b>ViT-B/16</b> or <b>ResNet-50</b>) achieve high clean accuracy (e.g. <b>92.4%</b>), but are vulnerable to invisible noise perturbations.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with flow2:
+        st.markdown(r"""
+        <div class="glass-card" style="height: 100%; border-top: 3px solid #EF4444;">
+            <h4 style="color:#EF4444 !important;">2️⃣ Adversarial Drops</h4>
+            <p style="font-size:0.95rem; line-height:1.6;">
+                Attacks like <b>FGSM</b> (single-step) and <b>PGD</b> (multi-step) cause accuracy to drop catastrophically (down to <b>2.8%</b> accuracy).
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with flow3:
+        st.markdown(r"""
+        <div class="glass-card" style="height: 100%; border-top: 3px solid #34D399;">
+            <h4 style="color:#34D399 !important;">3️⃣ RobustLens Solution</h4>
+            <p style="font-size:0.95rem; line-height:1.6;">
+                Automates <b>Drop Metrics</b>, computes weighted <b>Robustness Scores</b>, plots <b>Pareto Frontiers</b>, & runs <b>Gemini AI Diagnostics</b>.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    
+    # 4 Core Modules Navigation Overview
+    st.markdown("### ⚡ App Feature Modules")
+    mod1, mod2, mod3, mod4 = st.columns(4)
+    
+    with mod1:
+        st.markdown("""
+        <div class="glass-card" style="text-align:center;">
+            <h3>🧪</h3>
+            <h4>Experiment Analyzer</h4>
+            <p style="font-size:0.85rem; color:#94A3B8;">Input single experiment logs or import batch CSV datasets.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with mod2:
+        st.markdown("""
+        <div class="glass-card" style="text-align:center;">
+            <h3>📊</h3>
+            <h4>Model Comparison</h4>
+            <p style="font-size:0.85rem; color:#94A3B8;">Leaderboards, grouped bar charts, & 4-axis radar charts.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with mod3:
+        st.markdown("""
+        <div class="glass-card" style="text-align:center;">
+            <h3>📈</h3>
+            <h4>Pareto & Simulator</h4>
+            <p style="font-size:0.85rem; color:#94A3B8;">Clean vs. Robust trade-off frontiers & attack decay curves.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with mod4:
+        st.markdown("""
+        <div class="glass-card" style="text-align:center;">
+            <h3>🤖</h3>
+            <h4>AI Co-Pilot</h4>
+            <p style="font-size:0.85rem; color:#94A3B8;">Academic research reports & experiment recommendations.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    
+    # Adversarial Attack Reference
+    st.markdown("### 📚 Adversarial Attack Reference Guide")
     col_a, col_b = st.columns(2)
     with col_a:
         st.markdown(r"""
         <div class="glass-card">
-            <h4>⚡ FGSM (Fast Gradient Sign Method)</h4>
-            <p style="color: #94A3B8; font-size: 0.9rem;">Single-step linear gradient perturbation attack.</p>
+            <h4 style="color:#F59E0B !important;">⚡ FGSM (Fast Gradient Sign Method)</h4>
+            <p style="color: #94A3B8; font-size: 0.85rem;">Single-step linear gradient perturbation attack.</p>
             <code>x_adv = x + ε · sign(∇_x L(θ, x, y))</code>
-            <p style="margin-top: 10px; font-size: 0.95rem;">
-                Fast baseline evaluation for first-order gradient alignment vulnerabilities.
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                Evaluates first-order linear gradient alignment vulnerability. Fast computation speed.
             </p>
         </div>
         """, unsafe_allow_html=True)
     with col_b:
         st.markdown(r"""
         <div class="glass-card">
-            <h4>🔄 PGD (Projected Gradient Descent)</h4>
-            <p style="color: #94A3B8; font-size: 0.9rem;">Multi-step iterative projected gradient attack.</p>
+            <h4 style="color:#EF4444 !important;">🔄 PGD (Projected Gradient Descent)</h4>
+            <p style="color: #94A3B8; font-size: 0.85rem;">Multi-step iterative projected gradient attack.</p>
             <code>x^{t+1} = Π_{x+S}(x^t + α · sign(∇_x L(θ, x^t, y)))</code>
-            <p style="margin-top: 10px; font-size: 0.95rem;">
-                Considered the standard benchmark for non-obfuscated multi-step attack resistance.
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                Standard multi-step attack benchmark. PGD receives 45% weight in the Robustness Score.
             </p>
         </div>
         """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    
+    # Sample Benchmark Preview Table
+    st.markdown("### 📋 Sample Benchmark Dataset Preview")
+    st.caption("Pre-loaded research evaluation logs on CIFAR-10 benchmark:")
+    st.dataframe(
+        calc_df[[
+            "Experiment Name", "Model Name", "Fine-tuning Method",
+            "Clean Accuracy (%)", "FGSM Accuracy (%)", "PGD Accuracy (%)", "Robustness Score"
+        ]],
+        use_container_width=True
+    )
 
 # ---------------------------------------------------------
 # PAGE 2: EXPERIMENT ANALYZER
