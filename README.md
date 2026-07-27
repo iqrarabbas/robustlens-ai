@@ -1,7 +1,7 @@
 # 🛡️ RobustLens AI — Adversarial Model Benchmarking & AI Research Assistant
 
 > **Live Application URL**: [https://robustlens-ai.streamlit.app](https://robustlens-ai.streamlit.app)  
-> **Repository**: [https://github.com/your-username/robustlens-ai](https://github.com/your-username/robustlens-ai)
+> **Repository**: [https://github.com/iqrarabbas/robustlens-ai](https://github.com/iqrarabbas/robustlens-ai)
 
 ---
 
@@ -118,7 +118,7 @@ Keep the explanation clear and suitable for a master's student.
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-username/robustlens-ai.git
+   git clone https://github.com/iqrarabbas/robustlens-ai.git
    cd robustlens-ai
    ```
 
