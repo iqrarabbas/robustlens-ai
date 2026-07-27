@@ -611,12 +611,21 @@ elif page == "📄 Paper & Abstract Extractor":
             placeholder="Paste research text here..."
         )
         
-        uploaded_paper = st.file_uploader("Or Upload Paper Text File (.txt, .md)", type=["txt", "md"])
+        uploaded_paper = st.file_uploader("Or Upload Paper File (.pdf, .txt, .md)", type=["pdf", "txt", "md"])
         if uploaded_paper is not None:
             try:
-                paper_text_input = uploaded_paper.read().decode("utf-8")
-                st.session_state["paper_input_text"] = paper_text_input
-                st.success("✅ Paper file uploaded successfully!")
+                fname = uploaded_paper.name.lower()
+                if fname.endswith(".pdf"):
+                    import pypdf
+                    reader = pypdf.PdfReader(uploaded_paper)
+                    extracted_pages = [page.extract_text() for page in reader.pages if page.extract_text()]
+                    paper_text_input = "\n".join(extracted_pages)
+                    st.session_state["paper_input_text"] = paper_text_input
+                    st.success(f"✅ Extracted text from PDF ({len(reader.pages)} pages) successfully!")
+                else:
+                    paper_text_input = uploaded_paper.read().decode("utf-8")
+                    st.session_state["paper_input_text"] = paper_text_input
+                    st.success("✅ Paper text file loaded successfully!")
             except Exception as pe:
                 st.error(f"❌ Error reading file: {pe}")
 
