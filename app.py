@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 import os
 import io
 import re
+import json
 
 # ---------------------------------------------------------
 # PAGE CONFIGURATION & METADATA
@@ -166,18 +167,18 @@ st.markdown(r"""
     }
 
     /* Input Fields & Forms Contrast */
-    div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
+    div[data-baseweb="input"] > div, div[data-baseweb="select"] > div, div[data-baseweb="textarea"] > div {
         background-color: #1E293B !important;
         border-color: rgba(255, 255, 255, 0.2) !important;
         color: #F8FAFC !important;
     }
     
-    input {
+    input, textarea {
         color: #F8FAFC !important;
     }
 
     /* Form Label Styling */
-    .stTextInput > label, .stNumberInput > label, .stSelectbox > label, .stFileUploader > label {
+    .stTextInput > label, .stNumberInput > label, .stSelectbox > label, .stFileUploader > label, .stTextArea > label {
         color: #F8FAFC !important;
         font-weight: 600 !important;
         font-size: 0.95rem !important;
@@ -243,6 +244,23 @@ Your tasks are:
 8. Clearly state when there is not enough information.
 
 Keep the explanation clear and suitable for a master's student."""
+
+PAPER_EXTRACTION_PROMPT = """You are an expert Machine Learning paper parser. 
+Extract all model performance metrics mentioned in the user's text into a clean JSON array.
+
+Return ONLY a valid JSON array of objects with the following keys:
+- "Experiment Name": (String, short name e.g. "ViT-B/16 TRADES")
+- "Model Name": (String e.g. "ViT-B/16" or "ResNet-50")
+- "Dataset": (String e.g. "CIFAR-10" or "ImageNet-1k")
+- "Fine-tuning Method": (String e.g. "TRADES" or "Adversarial Training")
+- "Clean Accuracy (%)": (Float number e.g. 84.5)
+- "FGSM Accuracy (%)": (Float number e.g. 62.1)
+- "PGD Accuracy (%)": (Float number e.g. 52.3)
+- "Epsilon": (String e.g. "8/255")
+- "Epochs": (Integer number e.g. 20)
+
+If FGSM or PGD accuracy is missing in text, estimate reasonable values or use 0.0 based strictly on context.
+Do NOT include markdown formatting wrappers like ```json. Return raw JSON string."""
 
 # ---------------------------------------------------------
 # SESSION STATE INITIALIZATION & DEFAULT BENCHMARKS
@@ -348,7 +366,7 @@ with st.sidebar:
         <span style="font-size: 2.4rem;">🛡️</span>
         <div>
             <h2 style="margin:0; font-size: 1.45rem; font-weight: 800; color: #F8FAFC !important;">RobustLens AI</h2>
-            <span style="font-size: 0.75rem; color: #94A3B8 !important;">v1.2.0 • Pro Analytics</span>
+            <span style="font-size: 0.75rem; color: #94A3B8 !important;">v1.3.0 • Pro Analytics</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -359,6 +377,7 @@ with st.sidebar:
         "Navigation",
         [
             "🏠 Home",
+            "📄 Paper & Abstract Extractor",
             "🧪 Experiment Analyzer",
             "📊 Model Comparison",
             "📈 Pareto Trade-Off Frontier",
@@ -431,36 +450,57 @@ if page == "🏠 Home":
 
     st.markdown("---")
     
-    # 3-Step Visual Concept Flow
-    st.markdown("### 📌 How RobustLens AI Works (3-Step Concept)")
-    flow1, flow2, flow3 = st.columns(3)
+    # Interactive Beginner-Friendly Explanation Guide
+    st.markdown("### 🎓 Adversarial ML 101: Simple Explanations & Real-World Analogies")
     
-    with flow1:
-        st.markdown(r"""
-        <div class="glass-card" style="height: 100%; border-top: 3px solid #38BDF8;">
-            <h4 style="color:#38BDF8 !important;">1️⃣ Clean Accuracy</h4>
-            <p style="font-size:0.95rem; line-height:1.6;">
-                Standard models (e.g. <b>ViT-B/16</b> or <b>ResNet-50</b>) achieve high clean accuracy (e.g. <b>92.4%</b>), but are vulnerable to invisible noise perturbations.
-            </p>
+    tab_exp1, tab_exp2, tab_exp3 = st.tabs(["🚗 Real-World Analogy", "⚡ FGSM vs PGD Explained", "💡 The Clean vs. Robust Trade-Off"])
+    
+    with tab_exp1:
+        st.markdown("""
+        <div class="glass-card">
+            <h4>🚗 The "Stormy Obstacle Course" Analogy</h4>
+            <p>Imagine two different athletes:</p>
+            <ul>
+                <li><b>Clean Accuracy Athlete</b>: Performs exceptionally fast on a dry, sunny running track (e.g. <b>92% score</b> on standard clean images). However, put them in a muddy, stormy obstacle course, and they slip immediately (dropping to <b>2.8%</b>).</li>
+                <li><b>Robust Accuracy Athlete</b>: Trains heavily in heavy rain and mud (<b>Adversarial Training</b>). They run a little slower on the sunny track (e.g. <b>83% clean score</b>), but easily navigate the stormy obstacle course (scoring <b>51.4% robust score</b> under PGD attack).</li>
+            </ul>
+            <p style="color:#38BDF8;"><b>RobustLens AI helps you find the perfect balance between track speed and obstacle resilience!</b></p>
         </div>
         """, unsafe_allow_html=True)
-        
-    with flow2:
-        st.markdown(r"""
-        <div class="glass-card" style="height: 100%; border-top: 3px solid #EF4444;">
-            <h4 style="color:#EF4444 !important;">2️⃣ Adversarial Drops</h4>
-            <p style="font-size:0.95rem; line-height:1.6;">
-                Attacks like <b>FGSM</b> (single-step) and <b>PGD</b> (multi-step) cause accuracy to drop catastrophically (down to <b>2.8%</b> accuracy).
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with flow3:
-        st.markdown(r"""
-        <div class="glass-card" style="height: 100%; border-top: 3px solid #34D399;">
-            <h4 style="color:#34D399 !important;">3️⃣ RobustLens Solution</h4>
-            <p style="font-size:0.95rem; line-height:1.6;">
-                Automates <b>Drop Metrics</b>, computes weighted <b>Robustness Scores</b>, plots <b>Pareto Frontiers</b>, & runs <b>Gemini AI Diagnostics</b>.
+
+    with tab_exp2:
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.markdown(r"""
+            <div class="glass-card">
+                <h4 style="color:#F59E0B !important;">⚡ FGSM (Fast Gradient Sign Method)</h4>
+                <p style="color: #94A3B8; font-size: 0.85rem;">Single-step linear perturbation attack.</p>
+                <code>x_adv = x + ε · sign(∇_x L(θ, x, y))</code>
+                <p style="margin-top: 10px; font-size: 0.9rem;">
+                    <b>Analogy</b>: Pushing a car once down a hill. It tests if a model breaks under a single quick nudge.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        with col_b:
+            st.markdown(r"""
+            <div class="glass-card">
+                <h4 style="color:#EF4444 !important;">🔄 PGD (Projected Gradient Descent)</h4>
+                <p style="color: #94A3B8; font-size: 0.85rem;">Multi-step iterative projected gradient attack.</p>
+                <code>x^{t+1} = Π_{x+S}(x^t + α · sign(∇_x L(θ, x^t, y)))</code>
+                <p style="margin-top: 10px; font-size: 0.9rem;">
+                    <b>Analogy</b>: Repeatedly steering the car off course step-by-step. PGD gets 45% weight in our Robustness Score.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with tab_exp3:
+        st.markdown("""
+        <div class="glass-card">
+            <h4>⚖️ Why Can't We Have 100% Clean AND 100% Robust Accuracy?</h4>
+            <p>
+                Standard machine learning models rely on <i>non-robust features</i> (subtle background patterns in images) to achieve ultra-high clean accuracy. 
+                Adversarial defense fine-tuning forces the model to ignore non-robust patterns and focus strictly on <i>robust core shape features</i>. 
+                This causes a minor drop in clean accuracy in exchange for strong defense under attack!
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -474,9 +514,9 @@ if page == "🏠 Home":
     with mod1:
         st.markdown("""
         <div class="glass-card" style="text-align:center;">
-            <h3>🧪</h3>
-            <h4>Experiment Analyzer</h4>
-            <p style="font-size:0.85rem; color:#94A3B8;">Input single experiment logs or import batch CSV datasets.</p>
+            <h3>📄</h3>
+            <h4>Paper Parser</h4>
+            <p style="font-size:0.85rem; color:#94A3B8;">Paste abstracts or upload research paper files to auto-extract logs.</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -484,7 +524,7 @@ if page == "🏠 Home":
         st.markdown("""
         <div class="glass-card" style="text-align:center;">
             <h3>📊</h3>
-            <h4>Model Comparison</h4>
+            <h4>Model Leaderboard</h4>
             <p style="font-size:0.85rem; color:#94A3B8;">Leaderboards, grouped bar charts, & 4-axis radar charts.</p>
         </div>
         """, unsafe_allow_html=True)
@@ -509,34 +549,6 @@ if page == "🏠 Home":
 
     st.markdown("---")
     
-    # Adversarial Attack Reference
-    st.markdown("### 📚 Adversarial Attack Reference Guide")
-    col_a, col_b = st.columns(2)
-    with col_a:
-        st.markdown(r"""
-        <div class="glass-card">
-            <h4 style="color:#F59E0B !important;">⚡ FGSM (Fast Gradient Sign Method)</h4>
-            <p style="color: #94A3B8; font-size: 0.85rem;">Single-step linear gradient perturbation attack.</p>
-            <code>x_adv = x + ε · sign(∇_x L(θ, x, y))</code>
-            <p style="margin-top: 10px; font-size: 0.9rem;">
-                Evaluates first-order linear gradient alignment vulnerability. Fast computation speed.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    with col_b:
-        st.markdown(r"""
-        <div class="glass-card">
-            <h4 style="color:#EF4444 !important;">🔄 PGD (Projected Gradient Descent)</h4>
-            <p style="color: #94A3B8; font-size: 0.85rem;">Multi-step iterative projected gradient attack.</p>
-            <code>x^{t+1} = Π_{x+S}(x^t + α · sign(∇_x L(θ, x^t, y)))</code>
-            <p style="margin-top: 10px; font-size: 0.9rem;">
-                Standard multi-step attack benchmark. PGD receives 45% weight in the Robustness Score.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("---")
-    
     # Sample Benchmark Preview Table
     st.markdown("### 📋 Sample Benchmark Dataset Preview")
     st.caption("Pre-loaded research evaluation logs on CIFAR-10 benchmark:")
@@ -549,7 +561,106 @@ if page == "🏠 Home":
     )
 
 # ---------------------------------------------------------
-# PAGE 2: EXPERIMENT ANALYZER
+# PAGE 2: RESEARCH PAPER & ABSTRACT PARSER (NEW FEATURE)
+# ---------------------------------------------------------
+elif page == "📄 Paper & Abstract Extractor":
+    st.markdown("## 📄 Research Paper & Abstract Extractor")
+    st.caption("Paste an academic paper abstract or text log—Gemini AI will extract experimental parameters automatically.")
+    
+    api_key = get_gemini_key()
+    
+    col_p1, col_p2 = st.columns([3, 2])
+    
+    with col_p1:
+        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+        st.markdown("### ✍️ Paste Paper Abstract or Table Text")
+        paper_text_input = st.text_area(
+            "Paper Abstract / Experimental Results Text",
+            height=200,
+            placeholder="Paste text e.g.: We evaluated ViT-B/16 fine-tuned with TRADES on CIFAR-10. Our model achieved 84.5% clean accuracy, 62.1% under FGSM attack (eps=8/255), and 52.3% accuracy under PGD-20 attack after 20 epochs of training."
+        )
+        
+        uploaded_paper = st.file_uploader("Or Upload Paper Text File (.txt, .md)", type=["txt", "md"])
+        if uploaded_paper is not None:
+            try:
+                paper_text_input = uploaded_paper.read().decode("utf-8")
+                st.success("✅ Paper file uploaded successfully!")
+            except Exception as pe:
+                st.error(f"❌ Error reading file: {pe}")
+                
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with col_p2:
+        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+        st.markdown("### 🔑 API Key & Extraction Control")
+        user_key = st.text_input("Gemini API Key", value=api_key, type="password", placeholder="AIzaSy...")
+        active_key = user_key.strip() if user_key else api_key
+        
+        extract_btn = st.button("🧠 Extract Experiments with Gemini AI", type="primary", use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    if extract_btn:
+        if not active_key:
+            st.error("❌ Gemini API Key is required to extract paper metrics.")
+        elif not paper_text_input.strip():
+            st.error("⚠️ Please paste text or upload a paper text file.")
+        else:
+            with st.spinner("🧠 Gemini AI is extracting model architecture and attack metrics..."):
+                try:
+                    from google import genai
+                    from google.genai import types
+                    
+                    client = genai.Client(api_key=active_key)
+                    
+                    prompt = f"""Extract experimental results from this text:
+{paper_text_input}"""
+
+                    try:
+                        res = client.models.generate_content(
+                            model="gemini-2.5-flash",
+                            contents=prompt,
+                            config=types.GenerateContentConfig(
+                                system_instruction=PAPER_EXTRACTION_PROMPT,
+                                temperature=0.1
+                            )
+                        )
+                        raw_json = res.text
+                    except Exception:
+                        res = client.models.generate_content(
+                            model="gemini-1.5-flash",
+                            contents=prompt,
+                            config=types.GenerateContentConfig(
+                                system_instruction=PAPER_EXTRACTION_PROMPT,
+                                temperature=0.1
+                            )
+                        )
+                        raw_json = res.text
+                        
+                    # Clean up JSON wrappers if any
+                    raw_json = re.sub(r'```json\s*', '', raw_json)
+                    raw_json = re.sub(r'```\s*', '', raw_json).strip()
+                    
+                    extracted_list = json.loads(raw_json)
+                    extracted_df = pd.DataFrame(extracted_list)
+                    st.session_state["extracted_paper_df"] = extracted_df
+                    st.success(f"✅ Extracted {len(extracted_df)} experiment(s) from paper!")
+                    
+                except Exception as ex:
+                    st.error(f"❌ Extraction Error: {ex}. Ensure the text contains accuracy metrics.")
+
+    if "extracted_paper_df" in st.session_state:
+        st.markdown("---")
+        st.markdown("### 📋 Preview Extracted Paper Experiments")
+        extracted_df = st.session_state["extracted_paper_df"]
+        st.dataframe(extracted_df, use_container_width=True)
+        
+        if st.button("📥 Import Extracted Experiments into Main Workspace", type="primary", use_container_width=True):
+            st.session_state.experiments = pd.concat([st.session_state.experiments, extracted_df], ignore_index=True).drop_duplicates(subset=["Experiment Name"])
+            st.success("✅ Extracted experiments added to workspace!")
+            st.rerun()
+
+# ---------------------------------------------------------
+# PAGE 3: EXPERIMENT ANALYZER
 # ---------------------------------------------------------
 elif page == "🧪 Experiment Analyzer":
     st.markdown("## 🧪 Experiment Analyzer & Input Logger")
@@ -656,7 +767,7 @@ ViT-B/16 TRADES,ViT-B/16,CIFAR-10,TRADES (beta=6.0),83.1,59.8,51.4,8/255,25"""
         )
 
 # ---------------------------------------------------------
-# PAGE 3: MODEL COMPARISON
+# PAGE 4: MODEL COMPARISON
 # ---------------------------------------------------------
 elif page == "📊 Model Comparison":
     st.markdown("## 📊 Model Comparison & Leaderboard")
@@ -784,7 +895,7 @@ elif page == "📊 Model Comparison":
         )
 
 # ---------------------------------------------------------
-# PAGE 4: PARETO TRADE-OFF FRONTIER
+# PAGE 5: PARETO TRADE-OFF FRONTIER
 # ---------------------------------------------------------
 elif page == "📈 Pareto Trade-Off Frontier":
     st.markdown("## 📈 Clean vs. Robust Accuracy Trade-Off Frontier")
@@ -832,7 +943,7 @@ elif page == "📈 Pareto Trade-Off Frontier":
         """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# PAGE 5: EPSILON SIMULATOR
+# PAGE 6: EPSILON SIMULATOR
 # ---------------------------------------------------------
 elif page == "🎛️ Epsilon Simulator":
     st.markdown("## 🎛️ Epsilon (ε) Attack Breakdown Simulator")
@@ -877,7 +988,7 @@ elif page == "🎛️ Epsilon Simulator":
         st.plotly_chart(fig_sim, use_container_width=True)
 
 # ---------------------------------------------------------
-# PAGE 6: AI RESEARCH ASSISTANT (HIGHLY ORGANIZED UI)
+# PAGE 7: AI RESEARCH ASSISTANT (HIGHLY ORGANIZED UI)
 # ---------------------------------------------------------
 elif page == "🤖 AI Research Assistant":
     st.markdown("## 🤖 AI Research Assistant")
@@ -974,7 +1085,6 @@ Please analyze these results strictly according to your instructions."""
             tab_report1, tab_report2 = st.tabs(["📑 Organized Visual Dashboard", "📄 Raw Paper Report & Export"])
             
             with tab_report1:
-                # Helper function to extract sections from AI response text
                 def parse_sections(text):
                     sections = {
                         "summary": "",
@@ -985,7 +1095,6 @@ Please analyze these results strictly according to your instructions."""
                         "limitations": ""
                     }
                     
-                    # Splitting text into paragraphs or numbered sections
                     blocks = re.split(r'\n(?=\d+\.|\#\#|\*\*Task|\*\*1|\*\*2|\*\*3|\*\*4|\*\*5|\*\*6)', text)
                     
                     for block in blocks:
@@ -1006,7 +1115,6 @@ Please analyze these results strictly according to your instructions."""
 
                 parsed = parse_sections(raw_text)
                 
-                # Card 1: Main Finding & Executive Summary
                 st.markdown(f"""
                 <div class="report-card-summary">
                     <h3 style="color:#38BDF8 !important; margin-top:0;">📌 1. Main Findings & Executive Summary</h3>
@@ -1016,7 +1124,6 @@ Please analyze these results strictly according to your instructions."""
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Card 2 & 3 Dual Columns
                 col_r1, col_r2 = st.columns(2)
                 
                 with col_r1:
@@ -1039,7 +1146,6 @@ Please analyze these results strictly according to your instructions."""
                     </div>
                     """, unsafe_allow_html=True)
 
-                # Card 4: Recommended Next Experiment
                 st.markdown(f"""
                 <div class="report-card-recommendation">
                     <h4 style="color:#34D399 !important; margin-top:0;">🧪 4. Recommended Next Experiment</h4>
@@ -1049,7 +1155,6 @@ Please analyze these results strictly according to your instructions."""
                 </div>
                 """, unsafe_allow_html=True)
 
-                # Card 5: Research Limitations & Caveats
                 if parsed['limitations'].strip():
                     st.markdown(f"""
                     <div class="report-card-limitation">

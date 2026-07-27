@@ -32,6 +32,14 @@ Researchers employ defensive fine-tuning methods (Adversarial Training, TRADES, 
 
 ## ⚡ 3. Key Features
 
+- **📄 Paper & Abstract Extractor** *(NEW)*:
+  - Automatically parses raw research paper abstracts, markdown files, or text logs.
+  - Employs Gemini AI to extract model architectures, datasets, fine-tuning methods, clean accuracy %, FGSM accuracy %, and PGD accuracy % directly into the active benchmark workspace.
+
+- **🎓 Adversarial ML 101 Guide**:
+  - Interactive beginner-friendly guide with real-world analogies ("Stormy Obstacle Course" vs. "Sunny Track").
+  - Explains FGSM single-step vs. PGD multi-step attacks and the fundamental Clean vs. Robust trade-off in intuitive terms.
+
 - **🧪 Experiment Analyzer & Import**:
   - Manual single-experiment logger + batch CSV dataset uploader.
   - Pre-loaded with realistic Vision Transformer (ViT-B/16) and ResNet-50 benchmark logs on CIFAR-10.
