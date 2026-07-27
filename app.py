@@ -588,35 +588,52 @@ elif page == "📄 Paper & Abstract Extractor":
     
     api_key = get_gemini_key()
     
+    # Pre-fill sample abstract handler
+    sample_abstract = """We evaluated Vision Transformer (ViT-B/16) fine-tuned with TRADES (beta=6.0) on the CIFAR-10 benchmark. Our baseline ViT-B/16 model achieved 92.4% clean accuracy, but dropped to 24.1% under FGSM attack (eps=8/255) and 2.8% under PGD-20 attack. When fine-tuned with TRADES for 25 epochs, clean accuracy was 83.1%, while robust accuracy improved significantly to 59.8% under FGSM and 51.4% under PGD multi-step attack."""
+    
     col_p1, col_p2 = st.columns([3, 2])
     
     with col_p1:
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
         st.markdown("### ✍️ Paste Paper Abstract or Table Text")
+        
+        col_btn1, col_btn2 = st.columns([2, 3])
+        with col_btn1:
+            if st.button("📄 Load Sample Abstract", use_container_width=True):
+                st.session_state["paper_input_text"] = sample_abstract
+                st.rerun()
+                
+        default_text_val = st.session_state.get("paper_input_text", sample_abstract)
+        
         paper_text_input = st.text_area(
             "Paper Abstract / Experimental Results Text",
-            height=200,
-            placeholder="Paste text e.g.: We evaluated ViT-B/16 fine-tuned with TRADES on CIFAR-10. Our model achieved 84.5% clean accuracy, 62.1% under FGSM attack (eps=8/255), and 52.3% accuracy under PGD-20 attack after 20 epochs of training."
+            value=default_text_val,
+            height=210,
+            placeholder="Paste research text here..."
         )
         
         uploaded_paper = st.file_uploader("Or Upload Paper Text File (.txt, .md)", type=["txt", "md"])
         if uploaded_paper is not None:
             try:
                 paper_text_input = uploaded_paper.read().decode("utf-8")
+                st.session_state["paper_input_text"] = paper_text_input
                 st.success("✅ Paper file uploaded successfully!")
             except Exception as pe:
                 st.error(f"❌ Error reading file: {pe}")
-                
-        st.markdown('</div>', unsafe_allow_html=True)
 
     with col_p2:
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
         st.markdown("### 🔑 API Key & Extraction Control")
         user_key = st.text_input("Gemini API Key", value=api_key, type="password", placeholder="AIzaSy...")
         active_key = user_key.strip() if user_key else api_key
         
+        st.markdown("""
+        <div style="background: rgba(30, 41, 59, 0.6); padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-top: 15px; margin-bottom: 20px;">
+            <p style="margin: 0; font-size: 0.9rem; color: #CBD5E1;">
+                💡 <b>How it works:</b> Gemini AI will analyze the text above, extract model names, datasets, clean accuracy, FGSM/PGD accuracies, attack epsilons, and epoch counts, and format them into an interactive table ready for workspace import.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
         extract_btn = st.button("🧠 Extract Experiments with Gemini AI", type="primary", use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
 
     if extract_btn:
         if not active_key:
