@@ -412,6 +412,25 @@ if page == "🏠 Home":
     st.markdown('<div class="header-title">RobustLens AI</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Empowering Machine Learning Researchers & Students to Benchmark, Analyze, and Defend Models Against Adversarial Threats</div>', unsafe_allow_html=True)
     
+    # PROMINENT "WHAT THIS APP IS ABOUT" SUMMARY CARD
+    st.markdown("""
+    <div class="glass-card" style="border-left: 5px solid #38BDF8; background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(30, 41, 59, 0.85)); padding: 24px; margin-bottom: 25px;">
+        <h3 style="color:#38BDF8 !important; margin-top:0;">🎯 What is RobustLens AI & What Does It Do?</h3>
+        <p style="font-size: 1.08rem; line-height: 1.7; color: #F8FAFC !important; margin-bottom: 12px;">
+            <b>RobustLens AI</b> is an all-in-one diagnostic & benchmarking platform built for <b>students, researchers, and AI engineers</b> testing Vision Transformers (ViTs) and CNNs under adversarial attacks.
+        </p>
+        <p style="font-size: 1.02rem; line-height: 1.7; color: #CBD5E1 !important; margin-bottom: 16px;">
+            <b>The Problem:</b> When machine learning models are attacked with imperceptible noise (like <b>FGSM</b> or <b>PGD</b>), their performance can drop from <b>92% down to 2%</b>. Evaluating defensive fine-tuning methods requires analyzing complex trade-offs between clean accuracy retention and defense strength.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; font-size: 0.95rem;">
+            <div style="background:rgba(15,23,42,0.6); padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">📥 <b>1. Log & Extract Data</b><br><span style="color:#94A3B8; font-size:0.85rem;">Manual entry, CSV uploads, or AI paper parser.</span></div>
+            <div style="background:rgba(15,23,42,0.6); padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">📊 <b>2. Auto-Calculate Drop</b><br><span style="color:#94A3B8; font-size:0.85rem;">Computes FGSM/PGD drop & Weighted Score.</span></div>
+            <div style="background:rgba(15,23,42,0.6); padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">📈 <b>3. Visual Leaderboards</b><br><span style="color:#94A3B8; font-size:0.85rem;">Bar graphs, radar charts, & Pareto frontiers.</span></div>
+            <div style="background:rgba(15,23,42,0.6); padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">🤖 <b>4. AI Research Reports</b><br><span style="color:#94A3B8; font-size:0.85rem;">Gemini AI generates paper-ready analysis.</span></div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     # Quick Status Summary Row
     calc_df = calculate_metrics(st.session_state.experiments)
     c_m1, c_m2, c_m3, c_m4 = st.columns(4)
